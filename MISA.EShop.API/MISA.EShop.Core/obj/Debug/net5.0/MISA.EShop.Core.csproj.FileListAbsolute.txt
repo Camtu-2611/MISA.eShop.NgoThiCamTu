@@ -1,0 +1,14 @@
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\bin\Debug\net5.0\MISA.EShop.Core.deps.json
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\bin\Debug\net5.0\MISA.EShop.Core.dll
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\bin\Debug\net5.0\ref\MISA.EShop.Core.dll
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\bin\Debug\net5.0\MISA.EShop.Core.pdb
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.csprojAssemblyReference.cache
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.AssemblyInfoInputs.cache
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.AssemblyInfo.cs
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.csproj.CoreCompileInputs.cache
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.dll
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\ref\MISA.EShop.Core.dll
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.pdb
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.Resources.ResourceMessage.resources
+D:\nctu1\BaiDanhGia\MISA.eShop\Project\MISA.EShop.API\MISA.EShop.Core\obj\Debug\net5.0\MISA.EShop.Core.csproj.GenerateResource.cache
