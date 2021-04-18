@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MISA.EShop.Infrastructure.Repository
 {
-    public class StoreRepository:BaseRepository<Store>, IStoreRepository
+    public class StoreRepository : BaseRepository<Store>, IStoreRepository
     {
 
         public int GetCountStores()
@@ -33,11 +33,11 @@ namespace MISA.EShop.Infrastructure.Repository
         }
 
         public IEnumerable<Store> GetStoreFilter(
-            string storeCode, 
-            string storeName, 
-            string address, 
-            string phoneNumber, 
-            int status)
+            string storeCode,
+            string storeName,
+            string address,
+            string phoneNumber,
+            int? status)
         {
             var procName = $"Proc_GetStoreFilter";
             var parameters = new DynamicParameters();
@@ -55,27 +55,30 @@ namespace MISA.EShop.Infrastructure.Repository
             return stores;
         }
 
-        //public IEnumerable<Store> GetStoreByIndexOffset(int positionStart, int offset)
-        //{
-        //    var procName = $"GetStoreByIndexOffset";
-        //    var parameters = new DynamicParameters();
-        //    parameters.Add()
-        //}
+        public IEnumerable<Store> GetStoreByIndexOffset(int positionStart, int offset)
+        {
+            var procName = $"GetStoreByIndexOffset";
+            var parameters = new DynamicParameters();
+            parameters.Add("positionStart", positionStart);
+            parameters.Add("offset", offset);
+            var entities = _dbConnection.Query<Store>(procName, param: parameters, commandType: CommandType.StoredProcedure);
+            return entities;
+        }
 
         public bool CheckStoreCode(Guid? storeId, string storeCode, string functionName)
         {
             var sqlCheckExistCode = "";
-            if(functionName == "Insert")
+            if (functionName == "Insert")
             {
                 // Thực hiện lấy số lượng bản ghi có mã khách hàng trùng với mã khách hàng truyền vào
-                 sqlCheckExistCode = $"Select StoreCode from Store where Store.StoreCode = @StoreCode";
+                sqlCheckExistCode = $"Select StoreCode from Store where Store.StoreCode = @StoreCode";
             }
-            else if(functionName == "Update")
+            else if (functionName == "Update")
             {
                 // Thực hiện lấy số lượng bản ghi có mã khách hàng trùng với mã khách hàng truyền vào, loại bỏ bản ghi hiện tại
-                 sqlCheckExistCode = $"Select StoreCode from Store where Store.StoreCode = @StoreCode and  Store.StoreId != '{storeId}'";
+                sqlCheckExistCode = $"Select StoreCode from Store where Store.StoreCode = @StoreCode and  Store.StoreId != '{storeId}'";
             }
-            
+
             // truyền vào tham số mã cửa hàng - storeCode
             DynamicParameters dynamicParameters = new DynamicParameters();
             dynamicParameters.Add("@StoreCode", storeCode);
@@ -83,10 +86,10 @@ namespace MISA.EShop.Infrastructure.Repository
             // thực hiện truy vấn 
             var storeExistCode = _dbConnection
                 .Query<string>(
-                    sqlCheckExistCode, 
-                    dynamicParameters, 
+                    sqlCheckExistCode,
+                    dynamicParameters,
                     commandType: CommandType.Text);
-            
+
             // kiểm tra kết quả:
             if (storeExistCode.AsList().Count > 0)
             {
@@ -95,7 +98,7 @@ namespace MISA.EShop.Infrastructure.Repository
 
             return false;
         }
-    
-        
+
+
     }
 }

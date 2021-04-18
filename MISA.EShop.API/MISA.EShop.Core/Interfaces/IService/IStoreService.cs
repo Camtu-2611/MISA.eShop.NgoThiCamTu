@@ -15,7 +15,7 @@ namespace MISA.EShop.Core.Interfaces
         /// </summary>
         /// <returns>tổng số cửa hàng</returns>
         /// CreatedBy: nctu 14.04.2021
-        //int GetCountStores();
+        ResponseResult GetCountStores();
 
         /// <summary>
         /// Lấy thông tin cửa hàng theo mã cửa hàng
@@ -35,7 +35,7 @@ namespace MISA.EShop.Core.Interfaces
         /// <param name="status">Trạng thái hoạt động</param>
         /// <returns>Danh sách cửa hàng tìm thấy</returns>
         /// CreatedBy: nctu 14.04.2021
-        //ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int status);
+        ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int? status);
 
         /// <summary>
         /// Lấy thông tin cửa hàng theo vị trí đầu vào và số lượng
@@ -44,7 +44,7 @@ namespace MISA.EShop.Core.Interfaces
         /// <param name="offset">Số lượng</param>
         /// <returns>Danh sách cửa hàng</returns>
         /// CreatedBy: nctu 14.04.2021
-        //IEnumerable<Store> GetStoreByIndexOffset(int positionStart, int offset);
+        ResponseResult GetStoreByIndexOffset(int positionStart, int offset);
 
     }
 }

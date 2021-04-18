@@ -18,10 +18,47 @@ namespace MISA.EShop.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        //public int GetCountStores()
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public ResponseResult GetCountStores()
+        {
+            var result = new ResponseResult();
+            var total = _unitOfWork.Store.GetCountStores();
+            if (total > 0)
+            {
+                result.Data = total;
+                result.ErrorCode = Enum.ErrorCode.NONE;
+                result.IsSuccess = true;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.ErrorCode = Enum.ErrorCode.NOCONTENT;
+                result.Data = null;
+            }
+
+            return result;
+        }
+
+        public ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int status)
+        {
+            var result = new ResponseResult();
+            var stores = _unitOfWork.Store.GetStoreFilter(storeCode, storeName, address, phoneNumber, status);
+            if(stores != null)
+            {
+                result.IsSuccess = true;
+                result.ErrorCode = Enum.ErrorCode.NONE;
+                result.Data = stores;
+                result.DevMsg = Resources.ResourceMessage.Get_Success;
+                result.UserMsg = Resources.ResourceMessage.Get_Success;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.ErrorCode = Enum.ErrorCode.NOTFOUND;
+                result.UserMsg = Resources.ResourceMessage.Error_NotFound;
+
+            }
+            return result;
+        }
 
         public ResponseResult GetStoreByStoreCode(string storeCode)
         {
@@ -44,7 +81,7 @@ namespace MISA.EShop.Core.Services
             return result;
         }
 
-        public ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int status)
+        public ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int? status)
         {
             var result = new ResponseResult();
 
@@ -67,6 +104,25 @@ namespace MISA.EShop.Core.Services
             return result;
         }
 
+        public ResponseResult GetStoreByIndexOffset(int positionStart, int offset)
+        {
+            var result = new ResponseResult();
+            var list = _unitOfWork.Store.GetStoreByIndexOffset(positionStart, offset);
+            
+            if(list != null)
+            {
+                result.IsSuccess = true;
+                result.Data = list;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.ErrorCode = Enum.ErrorCode.NOCONTENT;
+                result.UserMsg = Resources.ResourceMessage.Error_NotFound;
+            }
+            
+            return result;
+        }
 
         /// <summary>
         /// Hàm validate dữ liệu 

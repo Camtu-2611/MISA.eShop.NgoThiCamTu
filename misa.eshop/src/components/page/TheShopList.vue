@@ -136,6 +136,10 @@
                 </th>
               </tr>
             </thead>
+            <div v-show="!isLoaded" class="loading">
+            <div class="loader"></div>
+            <div class="text">Đang nạp dữ liệu</div>
+          </div>
             <tbody v-if="shops && shops.length" class="tbl-scroll">
               <tr
                 class="row-data"
@@ -268,7 +272,10 @@ export default {
         this.selectedShop.storeId == null ||
         this.selectedShop.storeId == ""
       ) {
-        this.openAlertModal();
+         this.showAlert = true;
+         setTimeout(()=>{
+           this.showAlert = false;
+         }, 3000);
         return;
       }
       this.$refs.ModalDelete.show();
@@ -421,4 +428,21 @@ export default {
 <style  scoped>
 @import "../../styles/layout/toolbar.css";
 @import "../../styles/layout/content.css";
+
+/* css cho animation loading */
+.loading{
+  width: calc(100% - 186px);
+  height: calc(100vh - 218px);
+  position: fixed;
+  top: 160px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  text-align: center;
+}
+.loading .text{
+  position: fixed;
+  left: calc(50% + 20px);
+  top: calc(50% + 90px);
+}
+
 </style>
