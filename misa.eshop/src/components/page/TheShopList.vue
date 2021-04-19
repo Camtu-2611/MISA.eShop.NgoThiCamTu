@@ -258,7 +258,7 @@ export default {
         this.selectedShopId == ""
       ) {
         this.showAlert = true;
-        this.alertMessage = "Vui lòng chọn bản ghi";
+        this.alertMessage = "Vui lòng chọn bản ghi để xóa";
         setTimeout(() => {
           this.showAlert = false;
         }, 3000);
@@ -276,7 +276,7 @@ export default {
         this.selectedShopId == null ||
         this.selectedShopId == ""
       ) {
-        this.openAlertModal("Vui lòng chọn bản ghi");
+        this.openAlertModal("Vui lòng chọn bản ghi để sửa");
         return;
       }
       this.formMode = "put";
@@ -308,7 +308,7 @@ export default {
       this.alertMessage = message;
         setTimeout(() => {
           this.showAlert = false;
-        }, 3000);
+        }, 5000);
     },
     /**
      * Lấy danh sách trạng thái cửa hàng

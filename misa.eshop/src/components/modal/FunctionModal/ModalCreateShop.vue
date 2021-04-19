@@ -21,16 +21,16 @@
             </p>
             <input
               class="form-control t-input"
+              id="storeCodeFocus"
               required
               tabindex="1"
               ref="storeCode"
               :class="{ 'boder-warning': !validate.storeCode }"
               v-model="store.storeCode"
               @blur="validateStoreCode()"
-              @focus="firstFocus()"
             />
             <span v-show="!validate.storeCode" class="warning">
-              <span class="tooltiptext">{{ warningMsg }}</span>
+              <span class="tooltiptext">{{ warningMsg1 }}</span>
             </span>
           </div>
           <div class="form-group t-row">
@@ -46,7 +46,7 @@
               @blur="validateStoreName()"
             />
             <span v-show="!validate.storeName" class="warning">
-              <span class="tooltiptext">{{ warningMsg }}</span>
+              <span class="tooltiptext">{{ warningMsg2 }}</span>
             </span>
           </div>
           <div class="form-group t-row">
@@ -65,7 +65,7 @@
             >
             </textarea>
             <span v-show="!validate.address" class="warning">
-              <span class="tooltiptext">{{ warningMsg }}</span>
+              <span class="tooltiptext">{{ warningMsg3 }}</span>
             </span>
           </div>
         </div>
@@ -81,7 +81,7 @@
                 @blur="validatePhoneNumber()"
               />
               <span v-show="!validate.phoneNumber" class="warning">
-                <span class="tooltiptext">{{ warningMsg }}</span>
+                <span class="tooltiptext">{{ warningMsg4 }}</span>
               </span>
             </div>
             <div class="form-group col-50">
@@ -202,7 +202,7 @@
             class="t-btn d-btn btn-save"
             id="btn-save"
             tabindex="11"
-            @click="save()"
+            @click="save('save')"
           >
             <div class="t-icon icon-save"></div>
             <span>Lưu</span>
@@ -211,7 +211,7 @@
             class="t-btn d-btn btn-save-add"
             id="btn-save-add"
             tabindex="12"
-            @click="saveAndAdd()"
+            @click="save('new')"
           >
             <div class="t-icon icon-save-add"></div>
             <span>Lưu và thêm mới</span>
@@ -268,9 +268,13 @@ export default {
       district: [],
       ward: [],
 
-      warningMsg: "",
+      warningMsg1: "",
+      warningMsg2:"",
+      warningMsg3:"",
+      warningMsg4:"",
       inputBlur: true,
 
+      checkDuplicate: true,
       validate: {
         storeCode: true,
         storeName: true,
@@ -304,31 +308,34 @@ export default {
     show() {
       
       this.$refs.BaseForm_ref.show();
+      
       this.getCountryData();
-      if(this.msg == "put"){
+      if (this.msg == "put") {
         this.getStoreById();
-      }
-      else if(this.msg == "post"){
+      } else if (this.msg == "post") {
         this.resetForm();
       }
+      this.focusFirstInput();
     },
 
-    firstFocus(){
-      this.$refs.storeCode.focus();
+    focusFirstInput() {
+      document.getElementById('storeCodeFocus').focus();
+      console.log("trung");
     },
+
     /**
      * Lấy thông tin 1 bản ghi theo Id của bản ghi đó khi chọn thao tác sửa
      * CreatedBy: nctu 17.04.2021
      */
     getStoreById() {
-      if(this.selectedShopId){
+      if (this.selectedShopId) {
         axios
-        .get("http://localhost:35480/api/v1/stores/" + this.selectedShopId)
-        .then((respone) => {
-          console.log(respone);
-          this.store = respone.data.data;
-        })
-        .catch((error) => console.log(error.data.devMsg));
+          .get("http://localhost:35480/api/v1/stores/" + this.selectedShopId)
+          .then((respone) => {
+            console.log(respone);
+            this.store = respone.data.data;
+          })
+          .catch((error) => console.log(error.data.devMsg));
       }
     },
 
@@ -336,16 +343,22 @@ export default {
      * Sự kiện khi click vào nút Lưu
      * CreatedBy: nctu 15.04.2021
      */
-    save() {
+    save(text) {
       // kiểm tra xem thao tác đang thực hiện với dialog là thêm - post hay sửa - put
       switch (this.msg) {
         case "post": {
           if (this.validateForm()) {
+            this.$delete(this.store, "storeId");
             axios
               .post("http://localhost:35480/api/v1/stores/", this.store)
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Thêm");
+                if(text =='save'){
+                  this.hide();
+                }else{
+                  this.resetForm();
+                }
                 this.alertMessage = "Thêm bản ghi thành công";
                 this.$emit("showAlertDialog", this.alertMessage);
               })
@@ -367,6 +380,11 @@ export default {
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Sửa");
+                if(text =='save'){
+                  this.hide();
+                }else{
+                  this.resetForm();
+                }
                 this.alertMessage = "Cập nhật thành công";
                 this.$emit("showAlertDialog", this.alertMessage);
               })
@@ -381,13 +399,6 @@ export default {
       }
     },
 
-    /**
-     * Sự kiện khi click vào nút Lưu và thêm mới
-     * CreatedBy: nctu 19.04.2021
-     */
-    saveAndAdd() {
-
-    },
     /**
      * Lấy danh sách quốc gia từ api
      * createdBy: nctu 15.04.2021
@@ -413,22 +424,22 @@ export default {
      * createdBy: nctu 15.04.2021
      */
     getProvinceData() {
-      if(this.store.countryId){
+      if (this.store.countryId) {
         axios
-        .get(
-          `http://localhost:35480/api/v1/Provinces/WithCountry/${this.store.countryId}`
-        )
-        .then((respone) => {
-          var option = [];
-          respone.data.data.forEach((element) => {
-            option.push({
-              text: element.provinceName,
-              value: element.provinceId,
+          .get(
+            `http://localhost:35480/api/v1/Provinces/WithCountry/${this.store.countryId}`
+          )
+          .then((respone) => {
+            var option = [];
+            respone.data.data.forEach((element) => {
+              option.push({
+                text: element.provinceName,
+                value: element.provinceId,
+              });
             });
-          });
-          this.province = option;
-        })
-        .catch((error) => console.log(error));
+            this.province = option;
+          })
+          .catch((error) => console.log(error));
       }
     },
 
@@ -437,22 +448,22 @@ export default {
      * createdBy: nctu 15.04.2021
      */
     getDistrictData() {
-      if(this.store.provinceId){
+      if (this.store.provinceId) {
         axios
-        .get(
-          `http://localhost:35480/api/v1/Districts/WithProvince/${this.store.provinceId}`
-        )
-        .then((respone) => {
-          var option = [];
-          respone.data.data.forEach((element) => {
-            option.push({
-              text: element.districtName,
-              value: element.districtId,
+          .get(
+            `http://localhost:35480/api/v1/Districts/WithProvince/${this.store.provinceId}`
+          )
+          .then((respone) => {
+            var option = [];
+            respone.data.data.forEach((element) => {
+              option.push({
+                text: element.districtName,
+                value: element.districtId,
+              });
             });
-          });
-          this.district = option;
-        })
-        .catch((error) => console.log(error));
+            this.district = option;
+          })
+          .catch((error) => console.log(error));
       }
     },
     /**
@@ -460,22 +471,22 @@ export default {
      * createdBy: nctu 15.04.2021
      */
     getWardData() {
-      if(this.store.districtId){
+      if (this.store.districtId) {
         axios
-        .get(
-          `http://localhost:35480/api/v1/Wards/WithDistrict/${this.store.districtId}`
-        )
-        .then((respone) => {
-          var option = [];
-          respone.data.data.forEach((element) => {
-            option.push({
-              text: element.wardName,
-              value: element.wardId,
+          .get(
+            `http://localhost:35480/api/v1/Wards/WithDistrict/${this.store.districtId}`
+          )
+          .then((respone) => {
+            var option = [];
+            respone.data.data.forEach((element) => {
+              option.push({
+                text: element.wardName,
+                value: element.wardId,
+              });
             });
-          });
-          this.ward = option;
-        })
-        .catch((error) => console.log(error));
+            this.ward = option;
+          })
+          .catch((error) => console.log(error));
       }
     },
 
@@ -506,14 +517,14 @@ export default {
      */
     validateForm() {
       if (
-        this.validateStoreCode() ||
-        this.validateStoreName() ||
-        this.validateAddress() ||
-        this.validatePhoneNumber()
+        !this.validateStoreCode() ||
+        !this.validateStoreName() ||
+        !this.validateAddress() ||
+        !this.validatePhoneNumber()
       ) {
-        return true;
+        return false;
       }
-      return false;
+      return true;
     },
     /**
         Kiểm tra mã cửa hàng: trống hoặc trùng
@@ -521,18 +532,14 @@ export default {
      */
     validateStoreCode() {
       var valid = true;
-      if (this.store.storeCode == "" || this.store.storeCode == null) {
+      if (!this.store.storeCode) {
         this.validate.storeCode = false;
-        this.warningMsg = "Trường này không được để trống";
-        valid = false;
-      } else if (this.checkDuplicateCode(this.store.storeCode)) {
-        this.validate.storeCode = false;
-        this.warningMsg = "Mã cửa hàng đã tồn tại trong hệ thống";
-        console.log(this.warningMsg);
+        this.warningMsg1 = "Trường này không được để trống";
         valid = false;
       } else {
         this.validate.storeCode = true;
         valid = true;
+        this.checkDuplicateCode(this.store.storeCode);
       }
       return valid;
     },
@@ -542,9 +549,9 @@ export default {
      */
     validateStoreName() {
       let valid = true;
-      if (this.store.storeName == "" || this.store.storeName == null) {
+      if (!this.store.storeName) {
         this.validate.storeName = false;
-        this.warningMsg = "Trường này không được để trống";
+        this.warningMsg2 = "Trường này không được để trống";
         valid = false;
       } else {
         this.validate.storeName = true;
@@ -558,9 +565,9 @@ export default {
      */
     validateAddress() {
       let valid = true;
-      if (this.store.address == "" || this.store.address == null) {
+      if (!this.store.address) {
         this.validate.address = false;
-        this.warningMsg = "Trường này không được để trống";
+        this.warningMsg3 = "Trường này không được để trống";
         valid = false;
       } else {
         this.validate.address = true;
@@ -580,7 +587,7 @@ export default {
         valid = true;
       } else {
         this.validate.phoneNumber = false;
-        this.warningMsg = "Số điện thoại không hợp lệ";
+        this.warningMsg4 = "Số điện thoại không hợp lệ";
         valid = false;
       }
       return valid;
@@ -597,12 +604,23 @@ export default {
           },
         })
         .then((respone) => {
+          let valid = true;
           console.log(respone.data.errorCode);
-          var errorCode = respone.data.errorCode;
-          if (errorCode == 400) return false;
-          else if (errorCode == 0) return true;
+          if (respone.data.errorCode == 400) {
+            this.validate.storeCode = false;
+            this.warningMsg1 = "Mã cửa hàng đã tồn tại trong hệ thống";
+            console.log(this.warningMsg);
+            valid = false;
+          }
+          else{
+            this.validate.storeCode = true;
+            valid = true;
+          }
+          return valid;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 
@@ -612,18 +630,16 @@ export default {
       if (this.msg == "put") {
         this.getStoreById();
         this.titleDialog = "Sửa thông tin cửa hàng";
-      }
-      else if(this.msg == "post"){
+      } else if (this.msg == "post") {
         this.resetForm();
         this.titleDialog = "Thêm mới cửa hàng";
       }
     },
-    msg(){
+    msg() {
       if (this.msg == "put") {
         this.getStoreById();
         this.titleDialog = "Sửa thông tin cửa hàng";
-      }
-      else if(this.msg == "post"){
+      } else if (this.msg == "post") {
         this.resetForm();
         this.titleDialog = "Thêm mới cửa hàng";
       }

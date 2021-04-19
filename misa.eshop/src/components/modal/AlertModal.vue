@@ -55,7 +55,7 @@ export default {
   min-height: 30px;
   color: #000;
   font-size: 15px;
-  background-color: #fff;
+  background-color: #ffe7af;
   border-radius: 3px;
   opacity: 0.9;
   z-index: 1000;
