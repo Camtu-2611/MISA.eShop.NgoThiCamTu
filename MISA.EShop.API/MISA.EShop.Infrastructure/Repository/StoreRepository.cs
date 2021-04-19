@@ -49,10 +49,8 @@ namespace MISA.EShop.Infrastructure.Repository
             parameters.Add("@Status", status);
 
             var stores = _dbConnection
-                .Query<IEnumerable<Store>>(procName,
-                                            parameters,
-                                            commandType: CommandType.StoredProcedure)
-                .FirstOrDefault();
+                .Query<Store>(procName, parameters, commandType: CommandType.StoredProcedure).OrderByDescending(s=>s.CreatedDate);
+
             return stores;
         }
 
@@ -83,6 +81,7 @@ namespace MISA.EShop.Infrastructure.Repository
 
             return entitiesPaging;
         }
+
 
         public bool CheckStoreCode(Guid? storeId, string storeCode, string functionName)
         {

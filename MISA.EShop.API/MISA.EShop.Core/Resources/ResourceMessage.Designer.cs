@@ -70,6 +70,15 @@ namespace MISA.EShop.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Có lỗi xảy ra khi lọc dữ liệu.
+        /// </summary>
+        public static string Error_Filter {
+            get {
+                return ResourceManager.GetString("Error_Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Thông tin đầu vào lỗi.
         /// </summary>
         public static string Error_Input {
@@ -102,6 +111,15 @@ namespace MISA.EShop.Core.Resources {
         public static string Error_NotFound {
             get {
                 return ResourceManager.GetString("Error_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lỗi khi phân trang.
+        /// </summary>
+        public static string Error_Paging {
+            get {
+                return ResourceManager.GetString("Error_Paging", resourceCulture);
             }
         }
         

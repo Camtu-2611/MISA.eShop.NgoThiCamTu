@@ -58,5 +58,5 @@
 </template>
 
 <style>
-    @import "../../styles/layout/footer.css"
+    @import "../../styles/layout/footer.css";
 </style>

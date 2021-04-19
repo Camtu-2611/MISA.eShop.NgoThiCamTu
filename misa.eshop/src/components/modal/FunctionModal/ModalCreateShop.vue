@@ -28,6 +28,7 @@
               :class="{ 'boder-warning': !validate.storeCode }"
               v-model="store.storeCode"
               @blur="validateStoreCode()"
+              @input="validateStoreCode()"
             />
             <span v-show="!validate.storeCode" class="warning">
               <span class="tooltiptext">{{ warningMsg1 }}</span>
@@ -44,6 +45,7 @@
               :class="{ 'boder-warning': !validate.storeName }"
               v-model="store.storeName"
               @blur="validateStoreName()"
+              @input="validateStoreName()"
             />
             <span v-show="!validate.storeName" class="warning">
               <span class="tooltiptext">{{ warningMsg2 }}</span>
@@ -62,6 +64,7 @@
               :class="{ 'boder-warning': !validate.address }"
               v-model="store.address"
               @blur="validateAddress()"
+              @input="validateAddress()"
             >
             </textarea>
             <span v-show="!validate.address" class="warning">
@@ -79,9 +82,12 @@
                 :class="{ 'boder-warning': !validate.phoneNumber }"
                 v-model="store.phoneNumber"
                 @blur="validatePhoneNumber()"
+                @input="validatePhoneNumber()"
               />
               <span v-show="!validate.phoneNumber" class="warning">
-                <span class="tooltiptext">{{ warningMsg4 }}</span>
+                <span class="tooltiptext tooltipPhoneNumber">{{
+                  warningMsg4
+                }}</span>
               </span>
             </div>
             <div class="form-group col-50">
@@ -102,6 +108,7 @@
                 v-model="store.countryId"
               >
                 <!-- v-model="selectedCountry" -->
+                <option value="null" selected disabled>Chọn quốc gia</option>
                 <option
                   v-for="item in country"
                   :key="item.value"
@@ -123,6 +130,9 @@
                 :disabled="!store.countryId"
               >
                 <!-- v-model="selectedProvince" -->
+                <option value="null" selected disabled>
+                  Chọn tỉnh/thành phố
+                </option>
                 <option
                   v-for="item in province"
                   :key="item.value"
@@ -141,6 +151,7 @@
                 :disabled="!store.provinceId"
               >
                 <!-- v-model="selectedDistrict" -->
+                <option value="null" selected disabled>Chọn quận/huyện</option>
                 <option
                   v-for="item in district"
                   :key="item.value"
@@ -160,9 +171,7 @@
                 v-model="store.wardId"
                 :disabled="!store.districtId"
               >
-                <!-- v-model="selectedShop.wardId" -->
-                <option value="">Chọn phường/xã</option>
-
+                <option value="null" selected disabled>Chọn phường/xã</option>
                 <option
                   v-for="item in ward"
                   :key="item.value"
@@ -299,19 +308,8 @@ export default {
      * CreatedBy: nctu 16.04.2021
      */
     show() {
-      this.$refs.BaseForm_ref.show();
-
       this.getCountryData();
-      if (this.msg == "put") {
-        this.getStoreById();
-      } else if (this.msg == "post") {
-        this.resetForm();
-      }
-    },
-
-    focusFirstInput() {
-      document.getElementById("storeCodeFocus").focus();
-      console.log("trung");
+      this.$refs.BaseForm_ref.show();
     },
 
     /**
@@ -343,15 +341,15 @@ export default {
             axios
               .post("http://localhost:35480/api/v1/stores/", this.store)
               .then((respone) => {
-                console.log(`success ${respone.data}`);
-                console.log("Thêm");
-                if (text == "save") {
-                  this.hide();
+                console.log(`add success ${respone.data}`);
+                if (text == 'save') {
+                  this.alertMessage = "Thêm thành công";
+                  this.$emit("showAlertDialog", this.alertMessage);
                 } else {
-                  this.resetForm();
+                  this.alertMessage = "Thêm thành công";
+                  this.$emit("showAlertDialog", this.alertMessage);
+                  this.show();
                 }
-                this.alertMessage = "Thêm bản ghi thành công";
-                this.$emit("showAlertDialog", this.alertMessage);
               })
               .catch((error) => {
                 console.log(error.data);
@@ -371,13 +369,14 @@ export default {
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Sửa");
-                if (text == "save") {
-                  this.hide();
+                if (text == 'save') {
+                  this.alertMessage = "Cập nhật thành công";
+                  this.$emit("showAlertDialog", this.alertMessage);
                 } else {
                   this.resetForm();
+                  this.alertMessage = "Cập nhật thành công";
+                  this.$emit("showAlertDialog", this.alertMessage);
                 }
-                this.alertMessage = "Cập nhật thành công";
-                this.$emit("showAlertDialog", this.alertMessage);
               })
               .catch((error) => {
                 console.log(error.data);
@@ -573,16 +572,20 @@ export default {
     validatePhoneNumber() {
       var phone = /^\d{10}$/;
       let valid = true;
-      if (this.store.phoneNumber.match(phone)) {
-        this.validate.phoneNumber = true;
-        valid = true;
-      } else {
+      if (
+        !this.store.phoneNumber.match(phone) &&
+        this.store.phoneNumber != ""
+      ) {
         this.validate.phoneNumber = false;
         this.warningMsg4 = "Số điện thoại không hợp lệ";
         valid = false;
+      } else {
+        this.validate.phoneNumber = true;
+        valid = true;
       }
       return valid;
     },
+
     /**
      * Kiểm tra mã cửa hàng xem có bị trùng hay không
      * createdBy: ntu 15.04.2021
@@ -596,12 +599,18 @@ export default {
         })
         .then((respone) => {
           let valid = true;
-          console.log(respone.data.errorCode);
           if (respone.data.errorCode == 400) {
-            this.validate.storeCode = false;
-            this.warningMsg1 = "Mã cửa hàng đã tồn tại trong hệ thống";
-            console.log(this.warningMsg);
-            valid = false;
+            if (this.msg == "put") {
+              if (respone.data.data.storeId != this.store.storeId) {
+                this.validate.storeCode = false;
+                this.warningMsg1 = "Mã cửa hàng đã tồn tại ";
+                valid = false;
+              }
+            } else {
+              this.validate.storeCode = false;
+              this.warningMsg1 = "Mã cửa hàng đã tồn tại ";
+              valid = false;
+            }
           } else {
             this.validate.storeCode = true;
             valid = true;
@@ -636,12 +645,18 @@ export default {
     },
     "store.countryId"() {
       this.getProvinceData();
+      this.store.provinceId = null;
+      this.store.districtId = null;
+      this.store.wardId = null;
     },
     "store.provinceId"() {
       this.getDistrictData();
+      this.store.districtId = null;
+      this.store.wardId = null;
     },
     "store.districtId"() {
       this.getWardData();
+      this.store.wardId = null;
     },
   },
 };
@@ -651,18 +666,37 @@ export default {
 /* @import "../../../styles/dialog.css"; */
 .tooltiptext {
   visibility: hidden;
-  width: 220px;
+  width: 200px;
   line-height: 20px;
   background-color: #df4646;
+  border-radius: 3px;
   color: #fff;
   text-align: center;
-  border-radius: 3px;
-  padding: 5px 0;
-  position: absolute;
+  padding: 4px 3px;
+  position: fixed;
+  left: calc(50% + 300px);
   z-index: 1;
-  bottom: 0;
-  left: 85px;
-  margin-left: -60px;
+}
+
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -14px;
+  right: auto;
+  top: 4px;
+  bottom: auto;
+  border: 7px solid;
+  border-color: transparent #df4646 transparent transparent;
+}
+
+.tooltipPhoneNumber {
+  left: calc(50% + 5px);
+}
+
+.warning {
+  cursor: pointer;
 }
 
 .warning:hover .tooltiptext {

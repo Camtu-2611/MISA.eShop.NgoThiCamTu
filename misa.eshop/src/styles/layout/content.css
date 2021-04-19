@@ -22,8 +22,7 @@
 /* Định dạng cho grid */
 
 .t-grid table{
-    width: 100%;
-    height: 100%;
+    position: relative;
 }
     /* Định dạng thanh cuộn cho table */
     /* .t-grid::-webkit-scrollbar-track{

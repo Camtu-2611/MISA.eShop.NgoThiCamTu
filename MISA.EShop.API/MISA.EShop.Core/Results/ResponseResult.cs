@@ -38,6 +38,9 @@ namespace MISA.EShop.Core.Results
         public void OnException(ResponseResult result, Exception ex)
         {
             result.UserMsg = Resources.ResourceMessage.Exception_User;
+            result.DevMsg = Resources.ResourceMessage.Exception_User;
+            result.IsSuccess = false;
+            result.ErrorCode = ErrorCode.EXCEPTION;
         }
 
         /// <summary>

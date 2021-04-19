@@ -42,7 +42,7 @@ namespace MISA.EShop.Core.Services
         {
             var result = new ResponseResult();
             var stores = _unitOfWork.Store.GetStoreFilter(storeCode, storeName, address, phoneNumber, status);
-            if(stores != null)
+            if (stores != null)
             {
                 result.IsSuccess = true;
                 result.ErrorCode = Enum.ErrorCode.NONE;
@@ -76,12 +76,16 @@ namespace MISA.EShop.Core.Services
             {
                 result.IsSuccess = true;
                 result.ErrorCode = Enum.ErrorCode.NONE;
-                
+
             }
             return result;
         }
 
-        public ResponseResult GetStoreFilter(string storeCode, string storeName, string address, string phoneNumber, int? status)
+        public ResponseResult GetStoreFilter(string storeCode, 
+                string storeName, 
+                string address, 
+                string phoneNumber, 
+                int? status)
         {
             var result = new ResponseResult();
 
@@ -98,19 +102,19 @@ namespace MISA.EShop.Core.Services
             {
                 result.IsSuccess = false;
                 result.ErrorCode = Enum.ErrorCode.NOCONTENT;
-                result.UserMsg = Resources.ResourceMessage.Error_Store_NotExist;
-                result.DevMsg = Resources.ResourceMessage.NoContent;
+                result.UserMsg = Resources.ResourceMessage.Error_Filter;
+                result.DevMsg = Resources.ResourceMessage.Error_Filter;
             }
             return result;
         }
 
-        
+
         public ResponseResult GetStoreByIndexOffset(int positionStart, int offset)
         {
             var result = new ResponseResult();
             var list = _unitOfWork.Store.GetStoreByIndexOffset(positionStart, offset);
-            
-            if(list != null)
+
+            if (list != null)
             {
                 result.IsSuccess = true;
                 result.Data = list;
@@ -121,7 +125,7 @@ namespace MISA.EShop.Core.Services
                 result.ErrorCode = Enum.ErrorCode.NOCONTENT;
                 result.UserMsg = Resources.ResourceMessage.Error_NotFound;
             }
-            
+
             return result;
         }
 
@@ -130,7 +134,7 @@ namespace MISA.EShop.Core.Services
             var result = new ResponseResult();
             var pagingResult = _unitOfWork.Store.GetStorePaging(pageSize, pageIndex);
 
-            if(pagingResult != null)
+            if (pagingResult != null)
             {
                 result.IsSuccess = true;
                 result.Data = pagingResult;
@@ -140,7 +144,7 @@ namespace MISA.EShop.Core.Services
             {
                 result.ErrorCode = Enum.ErrorCode.NOCONTENT;
                 result.UserMsg = Resources.ResourceMessage.Error_NotFound;
-                result.DevMsg = Resources.ResourceMessage.Error_NotFound;
+                result.DevMsg = Resources.ResourceMessage.Error_Paging;
             }
             return result;
         }
@@ -172,7 +176,7 @@ namespace MISA.EShop.Core.Services
             // kiểm tra xem trường nào là duy nhất (có thuộc tính Unique) thì check duplicate
 
             bool checkDuplicateCode = _unitOfWork.Store.CheckStoreCode(entityID, entity.StoreCode, functionName);
-            
+
             if (checkDuplicateCode)
             {
                 responseResult.IsSuccess = false;

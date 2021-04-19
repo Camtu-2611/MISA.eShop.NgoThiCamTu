@@ -42,7 +42,12 @@ namespace MISA.EShop.WebAPI.Controllers
             var responseResult = new ResponseResult();
             try
             {
-                responseResult = _storeService.GetStoreFilter(filterparams.storeCode, filterparams.storeName, filterparams.address, filterparams.phoneNumber, filterparams.status);
+                responseResult = _storeService.GetStoreFilter(
+                    filterparams.storeCode, 
+                    filterparams.storeName, 
+                    filterparams.address, 
+                    filterparams.phoneNumber, 
+                    filterparams.status);
             }
             catch (Exception e)
             {

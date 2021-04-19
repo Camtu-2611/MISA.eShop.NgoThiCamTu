@@ -136,10 +136,16 @@
                 </th>
               </tr>
             </thead>
+
             <div v-show="!isLoaded" class="loading">
               <div class="loader"></div>
               <div class="text">Đang nạp dữ liệu</div>
             </div>
+
+            <div v-show="hasResult" class="not-find">
+              <i class="notify">Không tìm thấy kết quả</i>
+            </div>
+
             <tbody v-if="shops && shops.length" class="tbl-scroll">
               <tr
                 class="row-data"
@@ -161,12 +167,73 @@
         <!-- end grid -->
 
         <!-- begin footer -->
-        <TheFooter />
+        <div class="footer">
+          <div class="footer-content">
+            <div class="pagination">
+              <button
+                class="t-btn btn-footer t-icon t-icon-left-shift t-btn-disable"
+                id="btn-left-shift"
+              ></button>
+              <button
+                class="t-btn btn-footer t-icon t-icon-previous t-btn-disable"
+                id="btn-previous"
+              >
+                <i class=""></i>
+              </button>
+              <div class="footer-text">Trang</div>
+              <div class="page-index">
+                <input
+                  type="text"
+                  id="p-index"
+                  class="p-index"
+                  value="1"
+                  v-model="page.pageNumber"
+                />
+              </div>
+              <div class="footer-text">
+                trên <span class="page-total">1</span>
+              </div>
+              <button
+                class="t-btn btn-footer t-icon t-icon-next t-btn-disable"
+                id="btn-next"
+              ></button>
+              <button
+                class="t-btn btn-footer t-icon t-icon-right-shift t-btn-disable"
+                id="btn-right-shift"
+              ></button>
+              <button
+                class="t-btn btn-footer t-icon t-icon-refresh"
+                id="btn-refresh"
+              ></button>
+              <div class="cb-footer">
+                <select
+                  name="cb-paging"
+                  id="cb-paging"
+                  class="cb-paging"
+                  v-model="page.pageSize"
+                >
+                  <option
+                    v-for="(number, index) in selectNumberStore"
+                    :key="index"
+                    :value="number"
+                  >
+                    {{ number }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="footer-text display-paging-text">
+              Hiển thị <span class="begin-record"> 1 </span> -
+              <span class="last-record"> 6</span> trên
+              <span class="total-record"> 6 </span> kết quả
+            </div>
+          </div>
+        </div>
         <!-- end footer -->
       </div>
     </div>
     <!-- end content -->
-    
+
     <ModalCreateShop
       ref="ModalCreate"
       :msg="formMode"
@@ -189,7 +256,7 @@
 
 <script>
 import axios from "axios";
-import TheFooter from "../layout/TheFooter";
+// import TheFooter from "../layout/TheFooter";
 import ModalCreateShop from "../modal/FunctionModal/ModalCreateShop";
 import ModalDeletShop from "../modal/FunctionModal/ModelDeleteShop";
 import AlertModal from "../modal/AlertModal";
@@ -199,27 +266,21 @@ export default {
   components: {
     ModalCreateShop,
     ModalDeletShop,
-    TheFooter,
+    // TheFooter,
     AlertModal,
-  },
-  computed: {
-    isShowModalCreate: function () {
-      if (this.isOpenCreate) return "ModalCreateShop";
-      return "";
-    },
   },
   data() {
     return {
-      isOpenCreate: false, //Biến lưu trạng thái ẩn hiện của modal create
       formMode: "post",
       isLoaded: false,
+      hasResult: false,
       canShowDialogDelete: false,
       shops: [],
       selectedShopId: null,
       storeStatus: [
         {
           statusName: "Tất cả",
-          value: null,
+          value: "",
         },
         {
           statusName: "Đang hoạt động",
@@ -238,6 +299,12 @@ export default {
         status: 0,
       },
 
+      page: {
+        pageNumber: 1,
+        pageSize: 50,
+      },
+      selectNumberStore: [15, 25, 50, 100],
+
       showAlert: false,
       alertMessage: "",
     };
@@ -248,7 +315,33 @@ export default {
   },
 
   created() {
-    this.getData();
+    // this.getData();
+    this.getStoreByFilter(this.filterGrid);
+  },
+  watch: {
+    filter() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+    "filterGrid.storeCode"() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+    "filterGrid.storeName"() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+    "filterGrid.address"() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+    "filterGrid.phoneNumber"() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+    "filterGrid.status"() {
+      this.getStoreByFilter(this.filterGrid);
+    },
+  },
+  computed: {
+    filter() {
+      return this.getStoreByFilter(this.filterGrid);
+    },
   },
   methods: {
     /**
@@ -257,11 +350,12 @@ export default {
      */
     openModalCreateShop() {
       this.$refs.ModalCreate.show();
+      // focus vào ô nhập liệu đầu tiên
       var input = this.$refs.ModalCreate;
-      setTimeout(()=>{
+      setTimeout(() => {
         input.$refs.storeCode.focus();
-      }, 0)
-      this.isOpenCreate = true;
+      }, 0);
+
       this.formMode = "post";
     },
 
@@ -271,11 +365,7 @@ export default {
      */
     openModalDeleteShop() {
       if (this.selectedShopId == null || this.selectedShopId == "") {
-        this.showAlert = true;
-        this.alertMessage = "Vui lòng chọn bản ghi để xóa";
-        setTimeout(() => {
-          this.showAlert = false;
-        }, 3000);
+        this.openAlertModal("Vui lòng chọn bản ghi để xóa");
         return;
       }
       this.$refs.ModalDelete.show();
@@ -292,10 +382,11 @@ export default {
       }
       this.formMode = "put";
       this.$refs.ModalCreate.show();
+      // focus vào ô nhập liệu đầu tiên
       var input = this.$refs.ModalCreate;
-      setTimeout(()=>{
+      setTimeout(() => {
         input.$refs.storeCode.focus();
-      }, 0)
+      }, 0);
     },
 
     /**
@@ -307,7 +398,7 @@ export default {
     },
 
     /**
-     * Sự kiện hiện popup xác nhận xóa
+     * Sự kiện đóng popup xác nhận xóa
      * createdBy: nctu 16.04.2021
      */
     closeDeletePopUp() {
@@ -323,8 +414,9 @@ export default {
       this.alertMessage = message;
       setTimeout(() => {
         this.showAlert = false;
-      }, 5000);
+      }, 4000);
     },
+
     /**
      * Lấy danh sách trạng thái cửa hàng
      * CreatedBy: nctu 14.04.2021
@@ -358,6 +450,35 @@ export default {
         })
         .catch((error) => console.log(error));
     },
+
+    /**
+     * Lấy danh sách cửa hàng theo điều kiện lọc
+     * CreatedBy: nctu 19.04.2021
+     */
+    getStoreByFilter(filter) {
+      this.isLoaded = false;
+      var url = `http://localhost:35480/api/v1/stores/filter?storeCode=${filter.storeCode}&storeName=${filter.storeName}&address=${filter.address}&phoneNumber=${filter.phoneNumber}&status=${filter.status}`;
+
+      axios
+        .get(url)
+        .then((respone) => {
+          this.shops = respone.data.data;
+          if (this.shops.length == 0) {
+            this.hasResult = true;
+          }else{
+            this.hasResult = false;
+          }
+        })
+        .then(() => {
+          this.isLoaded = true;
+        })
+        .catch((error) => console.log(error));
+    },
+
+    /**
+     *  Sự kiện hiện thông báo sau khi thao tác thêm, sửa
+     *  CreatedBy: nctu 19.04.2021
+     */
     showAlertDialog(alertMessage) {
       console.log(alertMessage);
       this.alertMessage = alertMessage;
@@ -365,11 +486,12 @@ export default {
       this.reLoadData();
       this.closeCreateDialogForm();
     },
+
     /**
      * Xác nhận xóa bản ghi thành công
+     * CreatedBy: nctu 17.04.2021
      */
     showAlertDelete(alertMessage) {
-      alert("xóa thành công");
       this.alertMessage = alertMessage;
       this.openAlertModal(this.alertMessage);
       this.reLoadData();
@@ -414,7 +536,8 @@ export default {
      */
     reLoadData() {
       this.resetFilterGrid();
-      this.getData();
+      this.getStoreByFilter(this.filterGrid);
+      // this.getData();
     },
   },
 };
@@ -424,7 +547,9 @@ export default {
 <style  scoped>
 @import "../../styles/layout/toolbar.css";
 @import "../../styles/layout/content.css";
+@import "../../styles/layout/footer.css";
 @import "../../styles/animationLoading.css";
+
 /* css cho animation loading */
 .loading {
   width: calc(100% - 186px);
@@ -439,5 +564,16 @@ export default {
   position: fixed;
   left: calc(50% + 20px);
   top: calc(50% + 90px);
+}
+
+.not-find {
+  width: 100%;
+  height: auto;
+  text-align: center;
+  background: transparent;
+  position: absolute;
+  line-height: 30px;
+  font-weight: 500;
+  font-size: 15px;
 }
 </style>

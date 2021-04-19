@@ -1,6 +1,6 @@
 <template>
   <BaseModalForm ref="BaseForm">
-    <div class="dialog-form form-confirm-delete" style="display: none">
+    <div class="dialog-form form-confirm-delete">
       <!-- Begin dialog header -->
       <div class="dialog-header">
         <div class="dialog-header-content">
@@ -22,7 +22,9 @@
             <div class="icon-confirm"></div>
             <div class="msg-confirm-delete">
               Bạn có chắc chắn muốn xóa
-              <span class="store-name-selected">{{selectedShop.storeName}}</span>
+              <span class="store-name-selected">{{
+                selectedShop.storeName
+              }}</span>
               khỏi danh sách cửa hàng?
             </div>
           </div>
@@ -62,13 +64,13 @@ export default {
   components: {
     BaseModalForm,
   },
-  props:{
-    selectedShopId: String
+  props: {
+    selectedShopId: String,
   },
-  data(){
-    return{
-      selectedShop:{
-      storeCode: "",
+  data() {
+    return {
+      selectedShop: {
+        storeCode: "",
         storeName: "",
         address: "",
         phoneNumber: "",
@@ -78,14 +80,13 @@ export default {
         districtId: null,
         wardId: null,
         status: 0,
-    }
-    }
+      },
+    };
   },
-  created(){
-  },
+  created() {},
   methods: {
     /**
-     *  Ẩn dialog xác nhận xóa 
+     *  Ẩn dialog xác nhận xóa
      *  CreatedBy: nctu 16.04.2021
      */
     hide() {
@@ -96,7 +97,7 @@ export default {
      * Hiện dialog xác nhận xóa
      * CreatedBy: 16.04.2021
      */
-    show(){
+    show() {
       this.$refs.BaseForm.show();
     },
 
@@ -104,32 +105,40 @@ export default {
      *  Lấy thông tin 1 bản ghi theo Id
      * CreatedBy: nctu 16.04.2021
      */
-    getStoreById(){
-       axios.get("http://localhost:35480/api/v1/stores/"+this.selectedShopId)
+    getStoreById() {
+      axios
+        .get("http://localhost:35480/api/v1/stores/" + this.selectedShopId)
         .then((respone) => {
           this.selectedShop = respone.data.data;
         })
         .catch((error) => console.log(error));
     },
-    
+
     /**
      *  Xóa 1 bản ghi theo id
      *  CreatedBy: nctu 16.04.2021
      */
-    deleteRecord(){
-      axios.delete("http://localhost:35480/api/v1/stores/"+this.selectedShopId)
+    deleteRecord() {
+      let alertMessage = "";
+      axios
+        .delete("http://localhost:35480/api/v1/stores/" + this.selectedShopId)
         .then((respone) => {
           console.log(respone);
-          this.$emit("deleteDone");
+          alertMessage = "Xóa bản ghi thành công";
+          this.$emit("showAlertDelete", alertMessage);
         })
-        .catch((error) => console.log(error));
-    }
+        .catch((error) => {
+          console.log(error);
+          alertMessage = "Xóa bản ghi thất bại";
+          this.$emit("showAlertDelete", alertMessage);
+        });
+    },
   },
-  watch:{
-    selectedShopId(){
+  watch: {
+    selectedShopId() {
       this.getStoreById();
-    }
-  }
+    },
+  },
 };
 </script>
 
