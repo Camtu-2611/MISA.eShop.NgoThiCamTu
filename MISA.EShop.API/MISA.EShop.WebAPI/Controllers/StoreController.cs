@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MISA.EShop.Core.Entities;
 using MISA.EShop.Core.Interfaces;
+using MISA.EShop.Core.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,31 +20,52 @@ namespace MISA.EShop.WebAPI.Controllers
             _storeService = storeService;
         }
 
-        /// <summary>
-        /// lay du lieu filter
-        /// </summary>
-        /// <param name="storeCode"></param>
-        /// <param name="storeName"></param>
-        /// <param name="address"></param>
-        /// <param name="phoneNumber"></param>
-        /// <param name="status"></param>
-        /// <returns></returns>
-        //[HttpGet]
-        //public IActionResult Get([FromBody] string storeCode = "",
-        //    [FromBody] string storeName = "",
-        //    [FromBody] string address = "",
-        //    [FromBody] string phoneNumber = "",
-        //    [FromBody] int status = 0)
-        //{
-        //    var responseResult = _storeService.GetStoreFilter(storeCode, storeName, address, phoneNumber, status);
-        //    return Ok(responseResult);
-        //}
-
+        // Lấy thông tin đối tượng theo mã
         [HttpGet("getbycode")]
         public IActionResult Get(string storeCode)
         {
-            var responseResult = _storeService.GetStoreByStoreCode(storeCode);
+            var responseResult = new ResponseResult();
+            try
+            {
+                responseResult = _storeService.GetStoreByStoreCode(storeCode);
+            }
+            catch (Exception e)
+            {
+                responseResult.OnException(responseResult, e);
+            }
+
             return Ok(responseResult);
         }
+        [HttpGet("Filter")]
+        public IActionResult Get([FromQuery] FilterStoreParams filterparams)
+        {
+            var responseResult = new ResponseResult();
+            try
+            {
+                responseResult = _storeService.GetStoreFilter(filterparams.storeCode, filterparams.storeName, filterparams.address, filterparams.phoneNumber, filterparams.status);
+            }
+            catch (Exception e)
+            {
+                responseResult.OnException(responseResult, e);
+            }
+            return Ok(responseResult);
+        }
+
+        [HttpGet("paging")]
+        public IActionResult Get(int pageSize, int pageIndex)
+        {
+            var responseResult = new ResponseResult();
+            try
+            {
+                responseResult = _storeService.GetStorePaging(pageSize, pageIndex);
+            }
+            catch (Exception e)
+            {
+                responseResult.OnException(responseResult, e);
+            }            
+
+            return Ok(responseResult);
+        }
+
     }
 }

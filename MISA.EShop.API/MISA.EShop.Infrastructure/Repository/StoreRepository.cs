@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MISA.EShop.Core.Entities;
 using MISA.EShop.Core.Interfaces;
+using MISA.EShop.Core.Results;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -63,6 +64,24 @@ namespace MISA.EShop.Infrastructure.Repository
             parameters.Add("offset", offset);
             var entities = _dbConnection.Query<Store>(procName, param: parameters, commandType: CommandType.StoredProcedure);
             return entities;
+        }
+
+        public EntittiesPaging<Store> GetStorePaging(int pageSize, int pageIndex)
+        {
+            var entitiesPaging = new EntittiesPaging<Store>();
+            var procName = "Proc_GetStorePaging";
+            var parameters = new DynamicParameters();
+            parameters.Add("@PageSize", pageSize);
+            parameters.Add("@PageIndex", pageIndex);
+            parameters.Add("@TotalRecord", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+            parameters.Add("@TotalPage", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+
+            var listStore = _dbConnection.Query<Store>(procName, parameters, commandType: CommandType.StoredProcedure);
+            entitiesPaging.Data = listStore.ToList();
+            entitiesPaging.TotalRecord = parameters.Get<int>("@TotaRecord");
+            entitiesPaging.TotalPage = parameters.Get<int>("@TotalPage");
+
+            return entitiesPaging;
         }
 
         public bool CheckStoreCode(Guid? storeId, string storeCode, string functionName)

@@ -1,8 +1,8 @@
 <template>
-  <div class="alert-modal">
-    <!-- <div class="t-icon icon-warning"></div> -->
+  <div class="alert-modal" >
+    <div class="alert-left"></div>
     <div class="alert-form">
-      <div class="alert-text">Vui lòng chọn bản ghi</div>
+      <div class="alert-text">{{alertMessage}}</div>
     </div>
   </div>
 </template>
@@ -11,6 +11,7 @@
 export default {
   props:{
     visible: Boolean,
+    alertMessage: String,
   },
   data() {
     return {
@@ -18,35 +19,59 @@ export default {
     };
   },
   methods: {
+    /**
+     * Sự kiện ẩn thông báo
+     * CreatedBy: nctu 19.04.2021
+     */
     hide() {
       this.visible = false;
     },
+
+    /**
+     * Sự kiện hiện form thông báo
+     * CreatedBy: nctu 19.04.2021
+     */
     show() {
       this.visible = true;
     },
+
   },
 };
 </script>
 
 <style scoped>
+.success{
+  background-color: #187d1e;
+}
+.fail{
+  background-color: #ffe7af;
+}
+
+
 .alert-modal {
   width: fit-content;
   min-width: 250px;
   height: fit-content;
   min-height: 30px;
-  color: #ffffff;
+  color: #000;
   font-size: 15px;
-  background-color: #f34b3f;
+  background-color: #fff;
   border-radius: 3px;
   opacity: 0.9;
   z-index: 1000;
-  box-shadow: inset 0 1px 1px rgb(0 0 0 / 16%), 0 0 1px rgb(1 1 2 / 15%);
+  box-shadow: 0 3px 6px rgb(0 0 0 / 16%), 0 3px 6px rgb(1 1 2 / 15%);
   display: flex;
   padding: 10px;
   position: fixed;
   top: 14px;
   left: calc(50% - 125px);
   align-items: center;
+}
+
+.alert-left{
+  width: 15px;
+  height: fit-content;
+  background-color: #187d1e;
 }
 
 .alert-btn-ok {

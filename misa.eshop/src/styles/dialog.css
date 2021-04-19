@@ -293,7 +293,7 @@
                 border: 1px solid #2b3173;
             }
 
-            .btn-save:hover{
+            .btn-save:hover, .btn-save:focus{
                 background-color: #6b6f9d;
                 opacity: 0.8;
             }
@@ -308,7 +308,7 @@
                 color: #2b3173;
             }
 
-            .btn-save-add:hover{
+            .btn-save-add:hover, .btn-save-add:focus{
                 color: #6b6f9d;
             }
 
@@ -324,7 +324,7 @@
             color: #2b3173;
         }
 
-            .btn-cancel:hover{
+            .btn-cancel:hover, .btn-cancel:focus{
                 color: #6b6f9d;
                 border: 1px solid #6b6f9d !important;
             }

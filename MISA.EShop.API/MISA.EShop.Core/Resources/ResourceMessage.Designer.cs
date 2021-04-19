@@ -142,6 +142,15 @@ namespace MISA.EShop.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Đã có lỗi xảy ra vui lòng liên hệ MISA.
+        /// </summary>
+        public static string Exception_User {
+            get {
+                return ResourceManager.GetString("Exception_User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lấy thông tin thành công.
         /// </summary>
         public static string Get_Success {

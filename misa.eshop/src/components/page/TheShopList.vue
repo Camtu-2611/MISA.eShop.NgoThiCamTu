@@ -137,17 +137,17 @@
               </tr>
             </thead>
             <div v-show="!isLoaded" class="loading">
-            <div class="loader"></div>
-            <div class="text">Đang nạp dữ liệu</div>
-          </div>
+              <div class="loader"></div>
+              <div class="text">Đang nạp dữ liệu</div>
+            </div>
             <tbody v-if="shops && shops.length" class="tbl-scroll">
               <tr
                 class="row-data"
                 v-for="shop in shops"
                 :key="shop.storeId"
-                @click="clickRow(shop)"
-                @dblclick="openEditDialog(shop)"
-                v-bind:class="isSelected(shop) ? 'selected' : ''"
+                @click="clickRow(shop.storeId)"
+                @dblclick="openEditDialog(shop.storeId)"
+                v-bind:class="isSelected(shop.storeId) ? 'selected' : ''"
               >
                 <td class="col-15">{{ shop.storeCode }}</td>
                 <td class="col-21">{{ shop.storeName }}</td>
@@ -170,15 +170,15 @@
     <ModalCreateShop
       ref="ModalCreate"
       :msg="formMode"
-      :selectedShop="selectedShop"
-      @createdDone="createdDone"
+      :selectedShopId="selectedShopId"
+      @showAlertDialog="showAlertDialog"
     />
     <ModalDeletShop
       ref="ModalDelete"
-      :selectedShop="selectedShop"
-      @deleteDone="deleteDone"
+      :selectedShopId="selectedShopId"
+      @showAlertDelete="showAlertDelete"
     />
-    <AlertModal v-show="showAlert" :visible="showAlert" />
+    <AlertModal v-show="showAlert" :visible="showAlert" :alertMessage="alertMessage" />
   </div>
 </template>
 
@@ -199,25 +199,11 @@ export default {
   },
   data() {
     return {
-      formMode: "",
+      formMode: "post",
+      isLoaded: false,
       canShowDialogDelete: false,
       shops: [],
-      selectedShop: {
-        storeId: null,
-        storeCode: "",
-        storeName: "",
-        address: "",
-        phoneNumber: "",
-        storeTaxCode: "",
-        countryId: null,
-        provinceId: null,
-        districtId: null,
-        wardId: null,
-        status: 0,
-        street: "",
-        createDate: new Date(),
-        createUserId: "149fb958744f70c67709bf1378b8dc91",
-      },
+      selectedShopId: null,
       storeStatus: [
         {
           statusName: "Tất cả",
@@ -239,9 +225,9 @@ export default {
         phoneNumber: "",
         status: 0,
       },
-      canDelete: false,
-      canEdit: false,
+
       showAlert: false,
+      alertMessage:"",
     };
   },
 
@@ -258,7 +244,6 @@ export default {
      * Created by: nctu (13.04.2021)
      */
     openModalCreateShop() {
-      //   this.canShowDialogCreate = true;
       this.$refs.ModalCreate.show();
       this.formMode = "post";
     },
@@ -269,13 +254,14 @@ export default {
      */
     openModalDeleteShop() {
       if (
-        this.selectedShop.storeId == null ||
-        this.selectedShop.storeId == ""
+        this.selectedShopId == null ||
+        this.selectedShopId == ""
       ) {
-         this.showAlert = true;
-         setTimeout(()=>{
-           this.showAlert = false;
-         }, 3000);
+        this.showAlert = true;
+        this.alertMessage = "Vui lòng chọn bản ghi";
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 3000);
         return;
       }
       this.$refs.ModalDelete.show();
@@ -287,10 +273,10 @@ export default {
      */
     openEditDialog() {
       if (
-        this.selectedShop.storeId == null ||
-        this.selectedShop.storeId == ""
+        this.selectedShopId == null ||
+        this.selectedShopId == ""
       ) {
-        this.openAlertModal();
+        this.openAlertModal("Vui lòng chọn bản ghi");
         return;
       }
       this.formMode = "put";
@@ -312,8 +298,17 @@ export default {
     closeDeletePopUp() {
       this.$refs.ModalDelete.hide();
     },
-    openAlertModal() {
+
+    /**
+     * Sự kiện hiện thông báo: sau khi thêm, sửa, xóa
+     * createdBy: nctu 16.04.2021
+     */
+    openAlertModal(message) {
       this.showAlert = true;
+      this.alertMessage = message;
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 3000);
     },
     /**
      * Lấy danh sách trạng thái cửa hàng
@@ -322,7 +317,7 @@ export default {
     getStatusStoreName(value) {
       var status = String;
       if (value == 0) {
-        status = "Đamg hoạt động";
+        status = "Đang hoạt động";
       } else if (value == 1) {
         status = "Đang đóng cửa";
       } else {
@@ -335,67 +330,55 @@ export default {
      * Created by: nctu (13.04.2021)
      */
     getData() {
-      // var connectString = "http://localhost:35480/api/v1/stores/";
-      // let response =
       // 1. Xử lý processing load data
-
-      // 2. Xóa hàng được chọn khi load data
-
+      this.isLoaded = false;
       // 3. Thực hiện việc lấy dữ liệu
       axios
         .get("http://localhost:35480/api/v1/stores/")
         .then((respone) => {
           this.shops = respone.data.data;
+        }).then(()=>{
+          this.isLoaded = true;
         })
         .catch((error) => console.log(error));
 
-      // this.shops = response.data;
     },
-    createdDone(message) {
-      alert(message);
+    showAlertDialog(alertMessage) {
+      console.log(alertMessage);
+      this.alertMessage= alertMessage;
+      this.openAlertModal(this.alertMessage);
       this.reLoadData();
       this.closeCreateDialogForm();
     },
     /**
      * Xác nhận xóa bản ghi thành công
      */
-    deleteDone() {
+    showAlertDelete(alertMessage) {
       alert("xóa thành công");
+      this.alertMessage= alertMessage;
+      this.openAlertModal(this.alertMessage);
       this.reLoadData();
       this.closeDeletePopUp();
     },
 
-    checkSelectedShop() {
-      if (Object.keys(this.selectedShop) === 0) {
-        return false;
-      }
-      return true;
-    },
     /**
      * kiểm tra xem đã click vào bản ghi cần chọn chưa
      * Nếu vị trí của bản ghi là -1 thì chưa được chọn (do mảng bắt đầu từ phần tử 0)
-     * @param {any} shopId Thực thể cần thêm mới
+     * @param {any} storeId Thực thể cần thêm mới
      * CreatedBy: nctu 13.04.2021
      */
-    isSelected(shop) {
+    isSelected(storeId) {
       // lấy ra vị trí của bản ghi có id = shopId
       // let indexShop = this.selectedShop.indexOf(shopId);
-      if (this.selectedShop == shop) return true;
+      if (this.selectedShopId == storeId) return true;
       return false;
     },
 
     /**
      * Thêm hoặc xóa hàng được click vào list selectedShop
      */
-    clickRow(shop) {
-      this.selectedShop = shop;
-
-      // let indexShop = this.selectedShop.indexOf(shopId);
-      // if (indexShop > -1) {
-      //   this.selectedShop.splice(indexShop, 1);
-      // } else {
-      //   this.selectedShop.push(shopId);
-      // }
+    clickRow(storeId) {
+      this.selectedShopId = storeId;
     },
 
     /**
@@ -416,7 +399,6 @@ export default {
      */
     reLoadData() {
       this.resetFilterGrid();
-      // this.getStatusStore();
       this.getData();
     },
   },
@@ -424,13 +406,12 @@ export default {
 </script>
 
 
-
 <style  scoped>
 @import "../../styles/layout/toolbar.css";
 @import "../../styles/layout/content.css";
-
+@import "../../styles/animationLoading.css";
 /* css cho animation loading */
-.loading{
+.loading {
   width: calc(100% - 186px);
   height: calc(100vh - 218px);
   position: fixed;
@@ -439,10 +420,9 @@ export default {
   color: #ffffff;
   text-align: center;
 }
-.loading .text{
+.loading .text {
   position: fixed;
   left: calc(50% + 20px);
   top: calc(50% + 90px);
 }
-
 </style>

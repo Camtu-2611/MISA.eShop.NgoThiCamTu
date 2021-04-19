@@ -3,7 +3,7 @@
     <div class="dialog-form form-add-edit">
       <div class="dialog-header">
         <div class="dialog-header-content">
-          <div class="dialog-title" id="dialog-title">Thêm mới cửa hàng</div>
+          <div class="dialog-title" id="dialog-title">{{ titleDialog }}</div>
           <div class="dialog-button">
             <button
               class="t-btn btn-close t-icon"
@@ -23,12 +23,14 @@
               class="form-control t-input"
               required
               tabindex="1"
+              ref="storeCode"
               :class="{ 'boder-warning': !validate.storeCode }"
-              v-model="selectedShop.storeCode"
+              v-model="store.storeCode"
               @blur="validateStoreCode()"
+              @focus="firstFocus()"
             />
             <span v-show="!validate.storeCode" class="warning">
-              <span class="tooltiptext">{{warningMsg}}</span>
+              <span class="tooltiptext">{{ warningMsg }}</span>
             </span>
           </div>
           <div class="form-group t-row">
@@ -40,11 +42,11 @@
               required
               tabindex="2"
               :class="{ 'boder-warning': !validate.storeName }"
-              v-model="selectedShop.storeName"
+              v-model="store.storeName"
               @blur="validateStoreName()"
             />
             <span v-show="!validate.storeName" class="warning">
-              <span class="tooltiptext">{{warningMsg}}</span>
+              <span class="tooltiptext">{{ warningMsg }}</span>
             </span>
           </div>
           <div class="form-group t-row">
@@ -58,14 +60,13 @@
               rows="4"
               tabindex="3"
               :class="{ 'boder-warning': !validate.address }"
-              v-model="selectedShop.address"
+              v-model="store.address"
               @blur="validateAddress()"
             >
             </textarea>
             <span v-show="!validate.address" class="warning">
-              <span class="tooltiptext">{{warningMsg}}</span>
+              <span class="tooltiptext">{{ warningMsg }}</span>
             </span>
-
           </div>
         </div>
         <div class="dialog-content-bottom">
@@ -75,15 +76,20 @@
               <input
                 class="form-control t-input"
                 tabindex="4"
-                v-model="selectedShop.phoneNumber"
+                :class="{ 'boder-warning': !validate.phoneNumber }"
+                v-model="store.phoneNumber"
+                @blur="validatePhoneNumber()"
               />
+              <span v-show="!validate.phoneNumber" class="warning">
+                <span class="tooltiptext">{{ warningMsg }}</span>
+              </span>
             </div>
             <div class="form-group col-50">
               <p class="label-text text-one-line">Mã số thuế</p>
               <input
                 class="form-control t-input"
                 tabindex="5"
-                v-model="selectedShop.storeTaxCode"
+                v-model="store.storeTaxCode"
               />
             </div>
           </div>
@@ -93,8 +99,9 @@
               <select
                 class="form-control t-input"
                 tabindex="6"
-                v-model="selectedCountry"
+                v-model="store.countryId"
               >
+                <!-- v-model="selectedCountry" -->
                 <option
                   v-for="item in country"
                   :key="item.value"
@@ -112,9 +119,10 @@
               <select
                 class="form-control t-input"
                 tabindex="7"
-                v-model="selectedProvince"
-                :disabled="!selectedCountry"
+                v-model="store.provinceId"
+                :disabled="!store.countryId"
               >
+                <!-- v-model="selectedProvince" -->
                 <option
                   v-for="item in province"
                   :key="item.value"
@@ -129,9 +137,10 @@
               <select
                 class="form-control t-input"
                 tabindex="8"
-                v-model="selectedDistrict"
-                :disabled="!selectedProvince"
+                v-model="store.districtId"
+                :disabled="!store.provinceId"
               >
+                <!-- v-model="selectedDistrict" -->
                 <option
                   v-for="item in district"
                   :key="item.value"
@@ -148,9 +157,12 @@
               <select
                 class="form-control t-input"
                 tabindex="9"
-                v-model="selectedShop.wardId"
-                :disabled="!selectedDistrict"
+                v-model="store.wardId"
+                :disabled="!store.districtId"
               >
+                <!-- v-model="selectedShop.wardId" -->
+                <option value="">Chọn phường/xã</option>
+
                 <option
                   v-for="item in ward"
                   :key="item.value"
@@ -165,7 +177,7 @@
               <input
                 class="form-control t-input"
                 tabindex="10"
-                v-model="selectedShop.street"
+                v-model="store.street"
               />
             </div>
           </div>
@@ -228,12 +240,13 @@ export default {
   },
   props: {
     msg: String,
-    selectedShop: Object,
+    selectedShopId: String,
   },
 
   data() {
     return {
-      shop: {
+      titleDialog: "Thêm mới cửa hàng",
+      store: {
         // storeId: null,
         storeCode: "",
         storeName: "",
@@ -250,117 +263,130 @@ export default {
         createUserId: "149fb958744f70c67709bf1378b8dc91",
       },
 
-      country: [
-        {
-          text: "Chọn quốc gia",
-          value: "0",
-        },
-      ],
-      province: [
-        {
-          text: "Chọn tỉnh/thành phố",
-          value: "0",
-        },
-      ],
-      district: [
-        {
-          text: "Chọn quận/huyện",
-          value: "0",
-        },
-      ],
-      ward: [
-        {
-          text: "Chọn phường/xã",
-          value: "0",
-        },
-      ],
+      country: [],
+      province: [],
+      district: [],
+      ward: [],
 
-      selectedCountry: "",
-      selectedProvince: "",
-      selectedDistrict: "",
-      selectedWard: "",
-      warningMsg:"",
+      warningMsg: "",
       inputBlur: true,
+
       validate: {
         storeCode: true,
         storeName: true,
         address: true,
+        phoneNumber: true,
       },
+
+      alertMessage: "",
     };
   },
-
+  created() {
+    // if (this.msg == "put") {
+    //   this.getStoreById();
+    //   this.titleDialog = "Sửa thông tin cửa hàng";
+    // }
+  },
   methods: {
     /**
-     * Ẩn dialog
+     * Ẩn dialog thêm sửa, sự kiện khi click vào nút Hủy hoặc button x
+     * CreatedBy: nctu 16.04.2021
      */
     hide() {
-      //   this.$emit('closeDialog');
       this.$refs.BaseForm_ref.hide();
-      this.validate.storeCode = true;
-      this.validate.storeName = true;
-      this.validate.address = true;
-      this.selectedCountry = null;
-      this.selectedProvince = null;
-      this.selectedDistrict = null;
+      this.resetForm();
     },
+
     /**
-     * Hiện dialog
+     * Hiện dialog thêm sửa
+     * CreatedBy: nctu 16.04.2021
      */
     show() {
-      this.selectedCountry = this.selectedShop.countryId;
-      this.selectedProvince = this.selectedShop.provinceId;
-      this.selectedDistrict = this.selectedShop.districtId;
+      
       this.$refs.BaseForm_ref.show();
       this.getCountryData();
-      
+      if(this.msg == "put"){
+        this.getStoreById();
+      }
+      else if(this.msg == "post"){
+        this.resetForm();
+      }
+    },
+
+    firstFocus(){
+      this.$refs.storeCode.focus();
     },
     /**
-     * Lưu thông tin khi thêm hoặc sửa
+     * Lấy thông tin 1 bản ghi theo Id của bản ghi đó khi chọn thao tác sửa
+     * CreatedBy: nctu 17.04.2021
+     */
+    getStoreById() {
+      if(this.selectedShopId){
+        axios
+        .get("http://localhost:35480/api/v1/stores/" + this.selectedShopId)
+        .then((respone) => {
+          console.log(respone);
+          this.store = respone.data.data;
+        })
+        .catch((error) => console.log(error.data.devMsg));
+      }
+    },
+
+    /**
+     * Sự kiện khi click vào nút Lưu
      * CreatedBy: nctu 15.04.2021
      */
     save() {
-      let message ="";
+      // kiểm tra xem thao tác đang thực hiện với dialog là thêm - post hay sửa - put
       switch (this.msg) {
-        case "post":{
+        case "post": {
           if (this.validateForm()) {
-            this.selectedShop.countryId= this.selectedCountry;
-            this.selectedShop.provinceId = this.selectedProvince;
-            this.selectedShop.districtId = this.selectedDistrict;
-            this.shop = this.selectedShop;
-            this.$delete(this.shop, 'storeId');
-
             axios
-              .post("http://localhost:35480/api/v1/stores/", this.shop)
+              .post("http://localhost:35480/api/v1/stores/", this.store)
               .then((respone) => {
                 console.log(`success ${respone.data}`);
-                message = `Thêm ${this.shop.storeName}`
-                this.$emit("createdDone",message);
-              })
-              .catch((error) => console.log(error.data.devMsg));
-                
-             }
-          break;
-        }
-        case "put":{
-          if (this.validateForm()) {
-            this.selectedShop.countryId= this.selectedCountry;
-            this.selectedShop.provinceId = this.selectedProvince;
-            this.selectedShop.districtId = this.selectedDistrict;
-            
-            axios
-              .put(`http://localhost:35480/api/v1/stores/${this.selectedShop.storeId}`, this.selectedShop)
-              .then((respone) => {
-                console.log(`success ${respone.data}`);
-                message = "Cập nhật thành công";
-                this.$emit("createdDone",message);
+                console.log("Thêm");
+                this.alertMessage = "Thêm bản ghi thành công";
+                this.$emit("showAlertDialog", this.alertMessage);
               })
               .catch((error) => {
                 console.log(error.data);
+                this.alertMessage = "Có lỗi xảy ra, vui lòng liên hệ MISA";
+                this.$emit("showAlertDialog", this.alertMessage);
               });
-             }
+          }
+          break;
+        }
+        case "put": {
+          if (this.validateForm()) {
+            axios
+              .put(
+                `http://localhost:35480/api/v1/stores/${this.selectedShopId}`,
+                this.store
+              )
+              .then((respone) => {
+                console.log(`success ${respone.data}`);
+                console.log("Sửa");
+                this.alertMessage = "Cập nhật thành công";
+                this.$emit("showAlertDialog", this.alertMessage);
+              })
+              .catch((error) => {
+                console.log(error.data);
+                this.alertMessage = "Có lỗi xảy ra, vui lòng liên hệ MISA";
+                this.$emit("showAlertDialog", this.alertMessage);
+              });
+          }
           break;
         }
       }
+    },
+
+    /**
+     * Sự kiện khi click vào nút Lưu và thêm mới
+     * CreatedBy: nctu 19.04.2021
+     */
+    saveAndAdd() {
+
     },
     /**
      * Lấy danh sách quốc gia từ api
@@ -370,12 +396,7 @@ export default {
       axios
         .get("http://localhost:35480/api/v1/Countrys")
         .then((respone) => {
-          var option = [
-            {
-              text: "Chọn Quốc gia",
-              value: "",
-            },
-          ];
+          var option = [];
           respone.data.data.forEach((element) => {
             option.push({
               text: element.countryName,
@@ -386,23 +407,19 @@ export default {
         })
         .catch((error) => console.log(error));
     },
+
     /**
      * lấy danh sách tỉnh/thành phố theo quốc gia
      * createdBy: nctu 15.04.2021
      */
     getProvinceData() {
-      console.log(this.selectedCountry)
-      axios
+      if(this.store.countryId){
+        axios
         .get(
-          `http://localhost:35480/api/v1/Provinces/WithCountry/${this.selectedCountry}`
+          `http://localhost:35480/api/v1/Provinces/WithCountry/${this.store.countryId}`
         )
         .then((respone) => {
-          var option = [
-            {
-              text: "Chọn Tỉnh/ Thành phố",
-              value: "",
-            },
-          ];
+          var option = [];
           respone.data.data.forEach((element) => {
             option.push({
               text: element.provinceName,
@@ -412,23 +429,21 @@ export default {
           this.province = option;
         })
         .catch((error) => console.log(error));
+      }
     },
+
     /**
      * lấy danh sách quận/huyện theo tỉnh/thành phố
      * createdBy: nctu 15.04.2021
      */
     getDistrictData() {
-      axios
+      if(this.store.provinceId){
+        axios
         .get(
-          `http://localhost:35480/api/v1/Districts/WithProvince/${this.selectedProvince}`
+          `http://localhost:35480/api/v1/Districts/WithProvince/${this.store.provinceId}`
         )
         .then((respone) => {
-          var option = [
-            {
-              text: "Chọn quận/huyện",
-              value: "",
-            },
-          ];
+          var option = [];
           respone.data.data.forEach((element) => {
             option.push({
               text: element.districtName,
@@ -438,23 +453,20 @@ export default {
           this.district = option;
         })
         .catch((error) => console.log(error));
+      }
     },
     /**
      * lấy danh sách phường/xã theo quận/huyện
      * createdBy: nctu 15.04.2021
      */
     getWardData() {
-      axios
+      if(this.store.districtId){
+        axios
         .get(
-          `http://localhost:35480/api/v1/Wards/WithDistrict/${this.selectedDistrict}`
+          `http://localhost:35480/api/v1/Wards/WithDistrict/${this.store.districtId}`
         )
         .then((respone) => {
-          var option = [
-            {
-              text: "Chọn Phường/Xã",
-              value: "",
-            },
-          ];
+          var option = [];
           respone.data.data.forEach((element) => {
             option.push({
               text: element.wardName,
@@ -464,26 +476,27 @@ export default {
           this.ward = option;
         })
         .catch((error) => console.log(error));
-    },
-    // hiện thông báo thành công sau khi thêm hoặc sửa
-    showAlertSuccess(){
-      //hiện thông báo thành công sau khi thêm hoặc sửa
+      }
     },
 
     // reset dữ liệu trong form
     resetForm: function () {
-      this.selectedShop.storeId = null
-      this.selectedShop.storeCode = "";
-      this.selectedShop.storeName = "";
-      this.selectedShop.address = "";
-      this.selectedShop.phoneNumber = "";
-      this.selectedShop.storeTaxCode = "";
-      this.selectedShop.wardId = null;
-      this.selectedShop.street = "";
-      
-      this.selectedCountry = "";
-      this.selectedProvince = "";
-      this.selectedDistrict = "";
+      this.store.storeId = null;
+      this.store.storeCode = "";
+      this.store.storeName = "";
+      this.store.address = "";
+      this.store.phoneNumber = "";
+      this.store.storeTaxCode = "";
+      this.store.wardId = null;
+      this.store.countryId = null;
+      this.store.provinceId = null;
+      this.store.districtId = null;
+      this.store.street = "";
+
+      this.validate.storeCode = true;
+      this.validate.storeName = true;
+      this.validate.address = true;
+      this.validate.phoneNumber = true;
     },
 
     /**
@@ -495,7 +508,8 @@ export default {
       if (
         this.validateStoreCode() ||
         this.validateStoreName() ||
-        this.validateAddress()
+        this.validateAddress() ||
+        this.validatePhoneNumber()
       ) {
         return true;
       }
@@ -507,13 +521,14 @@ export default {
      */
     validateStoreCode() {
       var valid = true;
-      if (this.selectedShop.storeCode == "" || this.selectedShop.storeCode == null) {
+      if (this.store.storeCode == "" || this.store.storeCode == null) {
         this.validate.storeCode = false;
-        this.warningMsg="Trường này không được để trống";
+        this.warningMsg = "Trường này không được để trống";
         valid = false;
-      } else if (this.checkDuplicateCode(this.selectedShop.storeCode)) {
+      } else if (this.checkDuplicateCode(this.store.storeCode)) {
         this.validate.storeCode = false;
-         this.warningMsg="Mã cửa hàng đã tồn tại trong hệ thống";
+        this.warningMsg = "Mã cửa hàng đã tồn tại trong hệ thống";
+        console.log(this.warningMsg);
         valid = false;
       } else {
         this.validate.storeCode = true;
@@ -527,9 +542,9 @@ export default {
      */
     validateStoreName() {
       let valid = true;
-      if (this.selectedShop.storeName == "" || this.selectedShop.storeName == null) {
+      if (this.store.storeName == "" || this.store.storeName == null) {
         this.validate.storeName = false;
-         this.warningMsg="Trường này không được để trống";
+        this.warningMsg = "Trường này không được để trống";
         valid = false;
       } else {
         this.validate.storeName = true;
@@ -543,13 +558,30 @@ export default {
      */
     validateAddress() {
       let valid = true;
-      if (this.selectedShop.address == "" || this.selectedShop.address == null) {
+      if (this.store.address == "" || this.store.address == null) {
         this.validate.address = false;
-         this.warningMsg="Trường này không được để trống";
+        this.warningMsg = "Trường này không được để trống";
         valid = false;
       } else {
         this.validate.address = true;
         valid = true;
+      }
+      return valid;
+    },
+    /**
+     * Kiểm tra số điện thoại
+     * createdBy: nctu 19.04.2021
+     */
+    validatePhoneNumber() {
+      var phone = /^\d{10}$/;
+      let valid = true;
+      if (this.store.phoneNumber.match(phone)) {
+        this.validate.phoneNumber = true;
+        valid = true;
+      } else {
+        this.validate.phoneNumber = false;
+        this.warningMsg = "Số điện thoại không hợp lệ";
+        valid = false;
       }
       return valid;
     },
@@ -559,7 +591,7 @@ export default {
      */
     checkDuplicateCode(storeCode) {
       axios
-        .get("http://localhost:35480/api/v1/stores/", {
+        .get("http://localhost:35480/api/v1/stores/getbycode", {
           params: {
             storeCode: storeCode,
           },
@@ -575,34 +607,43 @@ export default {
   },
 
   watch: {
-    selectedCountry(val) {
-      if(val) {
-        this.getProvinceData();
+    // theo dõi id shop được chọn
+    selectedShopId() {
+      if (this.msg == "put") {
+        this.getStoreById();
+        this.titleDialog = "Sửa thông tin cửa hàng";
+      }
+      else if(this.msg == "post"){
+        this.resetForm();
+        this.titleDialog = "Thêm mới cửa hàng";
       }
     },
-    selectedProvince(val) {
-     
-     if(val) {
-       this.getDistrictData();
+    msg(){
+      if (this.msg == "put") {
+        this.getStoreById();
+        this.titleDialog = "Sửa thông tin cửa hàng";
+      }
+      else if(this.msg == "post"){
+        this.resetForm();
+        this.titleDialog = "Thêm mới cửa hàng";
       }
     },
-    selectedDistrict(val) {
-       if(val) {
+    "store.countryId"() {
+      this.getProvinceData();
+    },
+    "store.provinceId"() {
+      this.getDistrictData();
+    },
+    "store.districtId"() {
       this.getWardData();
-      }
-      
     },
-    
-    // selectedWard(val) {
-    //   this.selectedWard = val
-    // }
   },
 };
 </script>
 
 <style>
 /* @import "../../../styles/dialog.css"; */
-.tooltiptext{
+.tooltiptext {
   visibility: hidden;
   width: 220px;
   line-height: 20px;
@@ -616,7 +657,6 @@ export default {
   bottom: 0;
   left: 85px;
   margin-left: -60px;
-
 }
 
 .warning:hover .tooltiptext {

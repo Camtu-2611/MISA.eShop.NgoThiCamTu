@@ -1,4 +1,5 @@
 ﻿using MISA.EShop.Core.Entities;
+using MISA.EShop.Core.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,15 @@ namespace MISA.EShop.Core.Interfaces
         /// <returns>Danh sách cửa hàng</returns>
         /// CreatedBy: nctu 14.04.2021
         IEnumerable<Store> GetStoreByIndexOffset(int positionStart, int offset);
+
+        /// <summary>
+        /// Lấy danh sách cửa hàng theo số lượng bản ghi, chỉ số trang
+        /// </summary>
+        /// <param name="pageSize">Số lượng bản ghi 1 trang</param>
+        /// <param name="pageIndex">Chỉ số trang</param>
+        /// <returns>Danh sách sửa hàng theo số lượng bản ghi và chỉ số trang truyền vào</returns>
+        /// CreatedBy: nctu 20.04.2021
+        EntittiesPaging<Store> GetStorePaging(int pageSize, int pageIndex);
 
         /// <summary>
         /// Check trùng mã cửa hàng khi insert hoặc update

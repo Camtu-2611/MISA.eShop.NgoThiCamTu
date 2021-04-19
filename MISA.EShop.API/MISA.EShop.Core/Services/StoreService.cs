@@ -104,6 +104,7 @@ namespace MISA.EShop.Core.Services
             return result;
         }
 
+        
         public ResponseResult GetStoreByIndexOffset(int positionStart, int offset)
         {
             var result = new ResponseResult();
@@ -121,6 +122,26 @@ namespace MISA.EShop.Core.Services
                 result.UserMsg = Resources.ResourceMessage.Error_NotFound;
             }
             
+            return result;
+        }
+
+        public ResponseResult GetStorePaging(int pageSize, int pageIndex)
+        {
+            var result = new ResponseResult();
+            var pagingResult = _unitOfWork.Store.GetStorePaging(pageSize, pageIndex);
+
+            if(pagingResult != null)
+            {
+                result.IsSuccess = true;
+                result.Data = pagingResult;
+                result.ErrorCode = Enum.ErrorCode.NONE;
+            }
+            else
+            {
+                result.ErrorCode = Enum.ErrorCode.NOCONTENT;
+                result.UserMsg = Resources.ResourceMessage.Error_NotFound;
+                result.DevMsg = Resources.ResourceMessage.Error_NotFound;
+            }
             return result;
         }
 

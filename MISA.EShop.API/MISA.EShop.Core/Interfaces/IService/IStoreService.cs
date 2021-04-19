@@ -46,5 +46,13 @@ namespace MISA.EShop.Core.Interfaces
         /// CreatedBy: nctu 14.04.2021
         ResponseResult GetStoreByIndexOffset(int positionStart, int offset);
 
+        /// <summary>
+        /// Lấy danh sách cửa hàng theo số lượng bản ghi và chỉ số trang
+        /// </summary>
+        /// <param name="pageSize">Số lượng bản ghi trong 1 trang</param>
+        /// <param name="pageIndex">Chỉ số bản ghi</param>
+        /// <returns>Danh sách cửa hàng</returns>
+        /// CreatedBy: nctu 20.04.2021
+        ResponseResult GetStorePaging(int pageSize, int pageIndex);
     }
 }

@@ -30,6 +30,27 @@ namespace MISA.EShop.Core.Results
         // dữ liệu của kết quả trả về
         public object Data { get; set; }
 
-        
+        /// <summary>
+        /// Xử lý lỗi ngoại lệ
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="ex"></param>
+        public void OnException(ResponseResult result, Exception ex)
+        {
+            result.UserMsg = Resources.ResourceMessage.Exception_User;
+        }
+
+        /// <summary>
+        /// Xử lý lỗi dữ liệu sai
+        /// </summary>
+        /// <param name="result"></param>
+        public void OnBadRequest(ResponseResult result)
+        {
+            result.IsSuccess = false;
+            result.ErrorCode = ErrorCode.BADREQUEST;
+            result.DevMsg = Resources.ResourceMessage.Error_Input;
+            result.UserMsg = Resources.ResourceMessage.Error_Input;
+        }
+
     }
 }

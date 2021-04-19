@@ -144,6 +144,9 @@
   <data name="Error_Update" xml:space="preserve">
     <value>Lỗi không sửa được bản ghi</value>
   </data>
+  <data name="Exception_User" xml:space="preserve">
+    <value>Đã có lỗi xảy ra vui lòng liên hệ MISA</value>
+  </data>
   <data name="Get_Success" xml:space="preserve">
     <value>Lấy thông tin thành công</value>
   </data>

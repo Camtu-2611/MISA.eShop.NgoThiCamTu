@@ -33,7 +33,7 @@
               class="t-btn d-btn btn-delete-record"
               id="btn-delete-record"
               tabindex="1"
-              @click="deleteRecord(selectedShop.storeId)"
+              @click="deleteRecord()"
             >
               <div class="t-icon icon-delete"></div>
               <span>Xóa</span>
@@ -63,19 +63,61 @@ export default {
     BaseModalForm,
   },
   props:{
-    selectedShop: Object
+    selectedShopId: String
+  },
+  data(){
+    return{
+      selectedShop:{
+      storeCode: "",
+        storeName: "",
+        address: "",
+        phoneNumber: "",
+        storeTaxCode: "",
+        countryId: null,
+        provinceId: null,
+        districtId: null,
+        wardId: null,
+        status: 0,
+    }
+    }
+  },
+  created(){
   },
   methods: {
+    /**
+     *  Ẩn dialog xác nhận xóa 
+     *  CreatedBy: nctu 16.04.2021
+     */
     hide() {
-      // this.$emit("closeDialog");
       this.$refs.BaseForm.hide();
-
     },
+
+    /**
+     * Hiện dialog xác nhận xóa
+     * CreatedBy: 16.04.2021
+     */
     show(){
       this.$refs.BaseForm.show();
     },
-    deleteRecord(id){
-      axios.delete("http://localhost:35480/api/v1/stores/"+id)
+
+    /**
+     *  Lấy thông tin 1 bản ghi theo Id
+     * CreatedBy: nctu 16.04.2021
+     */
+    getStoreById(){
+       axios.get("http://localhost:35480/api/v1/stores/"+this.selectedShopId)
+        .then((respone) => {
+          this.selectedShop = respone.data.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    
+    /**
+     *  Xóa 1 bản ghi theo id
+     *  CreatedBy: nctu 16.04.2021
+     */
+    deleteRecord(){
+      axios.delete("http://localhost:35480/api/v1/stores/"+this.selectedShopId)
         .then((respone) => {
           console.log(respone);
           this.$emit("deleteDone");
@@ -83,6 +125,11 @@ export default {
         .catch((error) => console.log(error));
     }
   },
+  watch:{
+    selectedShopId(){
+      this.getStoreById();
+    }
+  }
 };
 </script>
 
