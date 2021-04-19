@@ -1,6 +1,6 @@
 <template>
   <BaseModalForm ref="BaseForm">
-    <div class="dialog-form form-confirm-delete">
+    <div class="dialog-form form-confirm-delete" style="display: none">
       <!-- Begin dialog header -->
       <div class="dialog-header">
         <div class="dialog-header-content">

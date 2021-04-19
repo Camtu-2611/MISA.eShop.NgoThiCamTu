@@ -242,7 +242,6 @@ export default {
     msg: String,
     selectedShopId: String,
   },
-
   data() {
     return {
       titleDialog: "Thêm mới cửa hàng",
@@ -269,9 +268,9 @@ export default {
       ward: [],
 
       warningMsg1: "",
-      warningMsg2:"",
-      warningMsg3:"",
-      warningMsg4:"",
+      warningMsg2: "",
+      warningMsg3: "",
+      warningMsg4: "",
       inputBlur: true,
 
       checkDuplicate: true,
@@ -284,12 +283,6 @@ export default {
 
       alertMessage: "",
     };
-  },
-  created() {
-    // if (this.msg == "put") {
-    //   this.getStoreById();
-    //   this.titleDialog = "Sửa thông tin cửa hàng";
-    // }
   },
   methods: {
     /**
@@ -306,20 +299,18 @@ export default {
      * CreatedBy: nctu 16.04.2021
      */
     show() {
-      
       this.$refs.BaseForm_ref.show();
-      
+
       this.getCountryData();
       if (this.msg == "put") {
         this.getStoreById();
       } else if (this.msg == "post") {
         this.resetForm();
       }
-      this.focusFirstInput();
     },
 
     focusFirstInput() {
-      document.getElementById('storeCodeFocus').focus();
+      document.getElementById("storeCodeFocus").focus();
       console.log("trung");
     },
 
@@ -354,9 +345,9 @@ export default {
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Thêm");
-                if(text =='save'){
+                if (text == "save") {
                   this.hide();
-                }else{
+                } else {
                   this.resetForm();
                 }
                 this.alertMessage = "Thêm bản ghi thành công";
@@ -380,9 +371,9 @@ export default {
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Sửa");
-                if(text =='save'){
+                if (text == "save") {
                   this.hide();
-                }else{
+                } else {
                   this.resetForm();
                 }
                 this.alertMessage = "Cập nhật thành công";
@@ -611,8 +602,7 @@ export default {
             this.warningMsg1 = "Mã cửa hàng đã tồn tại trong hệ thống";
             console.log(this.warningMsg);
             valid = false;
-          }
-          else{
+          } else {
             this.validate.storeCode = true;
             valid = true;
           }

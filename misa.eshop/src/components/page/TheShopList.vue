@@ -166,19 +166,24 @@
       </div>
     </div>
     <!-- end content -->
-
+    
     <ModalCreateShop
       ref="ModalCreate"
       :msg="formMode"
       :selectedShopId="selectedShopId"
       @showAlertDialog="showAlertDialog"
     />
+
     <ModalDeletShop
       ref="ModalDelete"
       :selectedShopId="selectedShopId"
       @showAlertDelete="showAlertDelete"
     />
-    <AlertModal v-show="showAlert" :visible="showAlert" :alertMessage="alertMessage" />
+    <AlertModal
+      v-show="showAlert"
+      :visible="showAlert"
+      :alertMessage="alertMessage"
+    />
   </div>
 </template>
 
@@ -197,8 +202,15 @@ export default {
     TheFooter,
     AlertModal,
   },
+  computed: {
+    isShowModalCreate: function () {
+      if (this.isOpenCreate) return "ModalCreateShop";
+      return "";
+    },
+  },
   data() {
     return {
+      isOpenCreate: false, //Biến lưu trạng thái ẩn hiện của modal create
       formMode: "post",
       isLoaded: false,
       canShowDialogDelete: false,
@@ -227,7 +239,7 @@ export default {
       },
 
       showAlert: false,
-      alertMessage:"",
+      alertMessage: "",
     };
   },
 
@@ -245,6 +257,11 @@ export default {
      */
     openModalCreateShop() {
       this.$refs.ModalCreate.show();
+      var input = this.$refs.ModalCreate;
+      setTimeout(()=>{
+        input.$refs.storeCode.focus();
+      }, 0)
+      this.isOpenCreate = true;
       this.formMode = "post";
     },
 
@@ -253,10 +270,7 @@ export default {
      * Created by: nctu (13.04.2021)
      */
     openModalDeleteShop() {
-      if (
-        this.selectedShopId == null ||
-        this.selectedShopId == ""
-      ) {
+      if (this.selectedShopId == null || this.selectedShopId == "") {
         this.showAlert = true;
         this.alertMessage = "Vui lòng chọn bản ghi để xóa";
         setTimeout(() => {
@@ -272,15 +286,16 @@ export default {
      * CreatedBy: nctu 15.04.2021
      */
     openEditDialog() {
-      if (
-        this.selectedShopId == null ||
-        this.selectedShopId == ""
-      ) {
+      if (this.selectedShopId == null || this.selectedShopId == "") {
         this.openAlertModal("Vui lòng chọn bản ghi để sửa");
         return;
       }
       this.formMode = "put";
       this.$refs.ModalCreate.show();
+      var input = this.$refs.ModalCreate;
+      setTimeout(()=>{
+        input.$refs.storeCode.focus();
+      }, 0)
     },
 
     /**
@@ -306,9 +321,9 @@ export default {
     openAlertModal(message) {
       this.showAlert = true;
       this.alertMessage = message;
-        setTimeout(() => {
-          this.showAlert = false;
-        }, 5000);
+      setTimeout(() => {
+        this.showAlert = false;
+      }, 5000);
     },
     /**
      * Lấy danh sách trạng thái cửa hàng
@@ -337,15 +352,15 @@ export default {
         .get("http://localhost:35480/api/v1/stores/")
         .then((respone) => {
           this.shops = respone.data.data;
-        }).then(()=>{
+        })
+        .then(() => {
           this.isLoaded = true;
         })
         .catch((error) => console.log(error));
-
     },
     showAlertDialog(alertMessage) {
       console.log(alertMessage);
-      this.alertMessage= alertMessage;
+      this.alertMessage = alertMessage;
       this.openAlertModal(this.alertMessage);
       this.reLoadData();
       this.closeCreateDialogForm();
@@ -355,7 +370,7 @@ export default {
      */
     showAlertDelete(alertMessage) {
       alert("xóa thành công");
-      this.alertMessage= alertMessage;
+      this.alertMessage = alertMessage;
       this.openAlertModal(this.alertMessage);
       this.reLoadData();
       this.closeDeletePopUp();
