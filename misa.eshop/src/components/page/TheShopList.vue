@@ -575,5 +575,6 @@ export default {
   line-height: 30px;
   font-weight: 500;
   font-size: 15px;
+  margin-top: 8px;
 }
 </style>

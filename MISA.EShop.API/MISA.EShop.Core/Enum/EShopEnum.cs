@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace MISA.EShop.Core.Enum
 {
+    /// <summary>
+    /// Chứa mã các mã code trả về khi có lỗi xảy ra
+    /// CreatedBy: nctu 16.04.2021
+    /// </summary>
     public enum ErrorCode
     {
         NONE = 0,

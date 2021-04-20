@@ -16,7 +16,8 @@
         height: calc(100% - 90px);
         background-color: #ffffff;
         opacity: 0.9;
-        overflow: auto;
+        overflow-x: auto;
+        overflow-y: scroll;
     }
 
 /* Định dạng cho grid */

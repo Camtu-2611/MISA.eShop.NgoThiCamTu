@@ -342,7 +342,7 @@ export default {
               .post("http://localhost:35480/api/v1/stores/", this.store)
               .then((respone) => {
                 console.log(`add success ${respone.data}`);
-                if (text == 'save') {
+                if (text == "save") {
                   this.alertMessage = "Thêm thành công";
                   this.$emit("showAlertDialog", this.alertMessage);
                 } else {
@@ -356,6 +356,10 @@ export default {
                 this.alertMessage = "Có lỗi xảy ra, vui lòng liên hệ MISA";
                 this.$emit("showAlertDialog", this.alertMessage);
               });
+          } else {
+            this.alertMessage =
+              "Vui lòng nhập đủ thông tin yêu cầu trước khi lưu";
+            this.$emit("showAlertDialog", this.alertMessage);
           }
           break;
         }
@@ -369,13 +373,14 @@ export default {
               .then((respone) => {
                 console.log(`success ${respone.data}`);
                 console.log("Sửa");
-                if (text == 'save') {
+                if (text == "save") {
                   this.alertMessage = "Cập nhật thành công";
                   this.$emit("showAlertDialog", this.alertMessage);
                 } else {
-                  this.resetForm();
+                  // this.resetForm();
                   this.alertMessage = "Cập nhật thành công";
                   this.$emit("showAlertDialog", this.alertMessage);
+                  this.show();
                 }
               })
               .catch((error) => {
@@ -383,6 +388,10 @@ export default {
                 this.alertMessage = "Có lỗi xảy ra, vui lòng liên hệ MISA";
                 this.$emit("showAlertDialog", this.alertMessage);
               });
+          } else {
+            this.alertMessage =
+              "Vui lòng nhập đủ thông tin yêu cầu trước khi lưu";
+            this.$emit("showAlertDialog", this.alertMessage);
           }
           break;
         }
@@ -577,7 +586,7 @@ export default {
         this.store.phoneNumber != ""
       ) {
         this.validate.phoneNumber = false;
-        this.warningMsg4 = "Số điện thoại không hợp lệ";
+        this.warningMsg4 = "Số điện thoại không đúng định dạng";
         valid = false;
       } else {
         this.validate.phoneNumber = true;
@@ -603,12 +612,15 @@ export default {
             if (this.msg == "put") {
               if (respone.data.data.storeId != this.store.storeId) {
                 this.validate.storeCode = false;
-                this.warningMsg1 = "Mã cửa hàng đã tồn tại ";
+                this.warningMsg1 = "Mã cửa hàng đã tồn tại - sửa ";
                 valid = false;
+              } else {
+                this.validate.storeCode = true;
+                valid = true;
               }
             } else {
               this.validate.storeCode = false;
-              this.warningMsg1 = "Mã cửa hàng đã tồn tại ";
+              this.warningMsg1 = "Mã cửa hàng đã tồn tại - thêm ";
               valid = false;
             }
           } else {
@@ -666,7 +678,7 @@ export default {
 /* @import "../../../styles/dialog.css"; */
 .tooltiptext {
   visibility: hidden;
-  width: 200px;
+  width: 150px;
   line-height: 20px;
   background-color: #df4646;
   border-radius: 3px;

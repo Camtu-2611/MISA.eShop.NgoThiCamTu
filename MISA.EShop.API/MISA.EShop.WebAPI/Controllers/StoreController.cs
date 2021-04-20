@@ -20,7 +20,13 @@ namespace MISA.EShop.WebAPI.Controllers
             _storeService = storeService;
         }
 
-        // Lấy thông tin đối tượng theo mã
+
+        /// <summary>
+        /// API lấy thông tin đối tượng theo mã 
+        /// </summary>
+        /// <param name="storeCode">Mã cửa hàng</param>
+        /// <returns>ResponseResult với data là Danh sách bản ghi có mã cửa hàng bằng mã cửa hàng truyền vào</returns>
+        /// CreatedBy: ntcu 20.04.20201
         [HttpGet("getbycode")]
         public IActionResult Get(string storeCode)
         {
@@ -36,6 +42,13 @@ namespace MISA.EShop.WebAPI.Controllers
 
             return Ok(responseResult);
         }
+
+        /// <summary>
+        /// API lấy thông tin cửa hàng theo các tham số lọc: storeCode, storeName, address, phoneNumber, status
+        /// </summary>
+        /// <param name="filterparams">Đối tượng có các thuộc tính các tham số lọc</param>
+        /// <returns>ResponseResult với data là Danh sách cửa hàng lọc được</returns>
+        /// CreatedBy: nctu 20.04.2021
         [HttpGet("Filter")]
         public IActionResult Get([FromQuery] FilterStoreParams filterparams)
         {
@@ -56,6 +69,12 @@ namespace MISA.EShop.WebAPI.Controllers
             return Ok(responseResult);
         }
 
+        /// <summary>
+        /// API lấy danh sách cửa hàng theo chỉ số trang và số lượng bản ghi/trang
+        /// </summary>
+        /// <param name="pageSize">Số lượng bản ghi/trang</param>
+        /// <param name="pageIndex">Chỉ số trang</param>
+        /// <returns>ResponseResult với data là Danh sách cửa hàng</returns>
         [HttpGet("paging")]
         public IActionResult Get(int pageSize, int pageIndex)
         {
